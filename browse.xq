@@ -548,100 +548,22 @@ let $item :=
                 ()
         }
     else if (exists($base-id) and exists($snapshot-id) and exists($table-id) and exists($record-id)) then
-        (
-            element dl {
-                element dt { "id" },
-                element dd { $record-id },
-                for $field-key in ($adjusted-primary-column-name, map:keys($fields)[. ne $adjusted-primary-column-name])
-                let $column-id := $columns[?name eq $field-key]?id
-                return
-                    (
-                        element dt { 
-                            element a {
-                                attribute href { "?base-id=" || $base-id || "&amp;snapshot-id=" || $snapshot-id || "&amp;table-id=" || $table-id || "&amp;field-id=" || $column-id},
-                                $field-key
-                            }
-                        },
-                        element dd { $render-function($field-key) }
-                    )
-            },
-            
-            (: 
-             : For a record from the LCHAIM base Document table, display it as HTML and TEI 
-             :)
-            
-            if ($base-id eq "appNgKT0y0GK3PZnT" and $table-id eq "tbl1Xm9gcLAEn06NT") then
-                let $document-type := $render-function("Type (Text Lookup)")
-                let $dateline-location := $render-function("Dateline Location (City Entity)")
-                let $date := $render-function("Date (To Be Transitioned to Amanda's Model)")
-                let $url := $render-function("URL")
-                let $provenance := $render-function("Provenance (Source and Location Within Source)")
-                return
-                    (
-                        element div {
-                            element h2 { $document-type },
-                            element div {
-                                attribute style { "text-align: right;" },
-                                $dateline-location, 
-                                text { ", " },
-                                $date
-                            }
-                        },
-                        element code {
-                            element pre {
-                                serialize(
-                                    element TEI { 
-                                        element teiHeader {
-                                            element fileDesc { 
-                                                element titleStmt {
-                                                    element title { $document-type }
-                                                },
-                                                element publicationStmt {
-                                                    element p { "Generated from Airtable" }
-                                                },
-                                                element seriesStmt {
-                                                    element title { 
-                                                        attribute type { "series" },
-                                                        "Foreign Relations of the United States"
-                                                    }
-                                                },
-                                                element notesStmt {
-                                                    element relatedItem {
-                                                        attribute type { "canonical" },
-                                                        attribute target { $url }
-                                                    }
-                                                }
-                                            },
-                                            element sourceDesc {
-                                                element bibl {
-                                                    attribute type { "frus-citation" },
-                                                    $provenance
-                                                }
-                                            }
-                                        },
-                                        element text {
-                                            element div {
-                                                element head {
-                                                    $document-type
-                                                },
-                                                element opener {
-                                                    element dateline {
-                                                        element placeName { $dateline-location/string() },
-                                                        text { ", " },
-                                                        element date { $date/string() }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    map { "indent": true() }
-                                )
-                            }
+        element dl {
+            element dt { "id" },
+            element dd { $record-id },
+            for $field-key in ($adjusted-primary-column-name, map:keys($fields)[. ne $adjusted-primary-column-name])
+            let $column-id := $columns[?name eq $field-key]?id
+            return
+                (
+                    element dt { 
+                        element a {
+                            attribute href { "?base-id=" || $base-id || "&amp;snapshot-id=" || $snapshot-id || "&amp;table-id=" || $table-id || "&amp;field-id=" || $column-id},
+                            $field-key
                         }
-                    )
-            else
-                ()
-        )
+                    },
+                    element dd { $render-function($field-key) }
+                )
+        }
     else
         ()
 let $breadcrumbs := 
