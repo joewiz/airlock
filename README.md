@@ -11,11 +11,13 @@ Take snapshots of Airtable bases for offline browsing and transformation
 
 ## Requirements
 
-*   [exist-db](http://exist-db.org/exist/apps/homepage/index.html) version: `5.x` or greater
+*   [exist-db](http://exist-db.org/exist/apps/homepage/index.html) version: `5.3.0-SNAPSHOT` or greater
 
 *   [ant](http://ant.apache.org) version: `1.10.7` \(for building from source\)
 
 *   [node](http://nodejs.org) version: `12.x` \(for building from source\)
+
+*   [airtable.xq]() version: `1.0.1` or greater \(for building from source\)
     
 
 ## Installation
@@ -27,6 +29,27 @@ Take snapshots of Airtable bases for offline browsing and transformation
     1.  Click on the `add package` symbol in the upper left corner and select the `.xar` file you just downloaded.
 
 3.  You have successfully installed airvac into exist.
+
+4.  Create a data directory structure:
+
+    - /db/apps/airvac-data
+    - /db/apps/airvac-data/bases
+    - /db/apps/airvac-data/bases.xml
+    
+    ... in which bases.xml contains this information:
+    
+    ```xml
+    <bases>
+        <base>
+            <id><!--insert Base ID here --></id>
+            <name><!-- insert Base name here --></name>
+            <api-key><!-- insert your API key here --></api-key>
+            <created-dateTime>2021-02-10T23:50:39.93-05:00</created-dateTime>
+        </base>
+    </bases>
+    ```
+
+5. Then load <http://localhost:8080/exist/apps/airvac> and create your first snapshot.
 
 ### Building from source
 
@@ -48,7 +71,7 @@ ant
    ant dev
    ```   
 
-If you see `BUILD SUCCESSFUL` ant has generated a `airvac-1.0.0.xar` file in the `build/` folder. To install it, follow the instructions [above](#installation).
+If you see `BUILD SUCCESSFUL` ant has generated a `airvac-*.xar` file in the `build/` folder. To install it, follow the instructions [above](#installation).
 
 
 

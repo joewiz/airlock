@@ -7,7 +7,7 @@ xquery version "3.1";
  : @see https://joewiz.org
  :)
 
-module namespace tests = "http://joewiz.org/ns//apps/airvac/tests";
+module namespace tests = "http://joewiz.org/ns/app/airvac/tests";
 
 declare namespace test="http://exist-db.org/xquery/xqsuite";
 

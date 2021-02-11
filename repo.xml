@@ -3,10 +3,11 @@
   xmlns="http://exist-db.org/xquery/repo">
   <description>Take snapshots of Airtable bases for offline browsing and transformation</description>
   <author>Joe Wicentowski</author>
-  <website>https://joewiz.org</website>
-  <status>alpha</status>
+  <website>https://github.com/joewiz/airvac</website>
+  <status>stable</status>
   <license>AGPL-3.0</license>
   <copyright>true</copyright>
   <type>application</type>
   <target>airvac</target>
+  <finish>post-install.xq</finish>
 </meta>
