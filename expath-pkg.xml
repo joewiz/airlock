@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package 
+  xmlns="http://expath.org/ns/pkg" name="http://joewiz.org/ns//apps/airvac"
+  abbrev="airvac" version="1.0.0" spec="1.0">
+  <title>Take snapshots of Airtable bases for offline browsing and transformation</title>
+  <dependency processor="http://exist-db.org" semver-min="5.0.0"/>
+</package>
