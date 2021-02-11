@@ -646,7 +646,7 @@ let $item :=
         ()
 let $breadcrumbs := 
     (
-        <a href="/exist/apps/airlock">Airvac</a>,
+        <a href="/exist/apps/airlock">Airlock</a>,
         text { " > " },
         <a href="/exist/apps/airlock/browse.xq">Bases</a>,
         if ($base-id) then 
