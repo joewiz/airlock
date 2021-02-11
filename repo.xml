@@ -10,4 +10,11 @@
   <type>application</type>
   <target>airlock</target>
   <finish>post-install.xq</finish>
+  <changelog>
+    <change version="1.0.0">
+      <ul xmlns="http://www.w3.org/1999/xhtml">
+        <li>Initial release</li>
+      </ul>
+    </change>
+  </changelog>
 </meta>
