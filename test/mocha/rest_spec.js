@@ -31,7 +31,7 @@ describe('rest api returns', function () {
 
     it.skip('file index.html exists in application root', function (done) {
       client
-        .get('/exist/rest/db/apps/airvac/index.html')
+        .get('/exist/rest/db/apps/airlock/index.html')
         .expect(200)
         .end(function (err, res) {
           expect(res.status).to.equal(200)

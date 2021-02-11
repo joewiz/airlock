@@ -1,6 +1,6 @@
 xquery version "3.1";
 
-module namespace app="http://joewiz.org/ns/xquery/airvac/app";
+module namespace app="http://joewiz.org/ns/xquery/airlock/app";
 
 (: see browse.xq for where the color CSS classes are used :)
 declare function app:wrap($content, $title) {

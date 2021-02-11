@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <meta 
   xmlns="http://exist-db.org/xquery/repo">
-  <description>Take snapshots of Airtable bases for offline browsing and transformation</description>
+    <description>Take snapshots of Airtable bases for offline browsing and transformation</description>
   <author>Joe Wicentowski</author>
-  <website>https://github.com/joewiz/airvac</website>
+  <website>https://github.com/joewiz/airlock</website>
   <status>stable</status>
   <license>AGPL-3.0</license>
   <copyright>true</copyright>
   <type>application</type>
-  <target>airvac</target>
+  <target>airlock</target>
   <finish>post-install.xq</finish>
 </meta>

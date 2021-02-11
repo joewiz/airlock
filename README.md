@@ -1,8 +1,8 @@
-# airvac
+# airlock
 
 [![License][license-img]][license-url]
 [![GitHub release][release-img]][release-url]
-![exist-db CI](https://github.com/joewiz/airvac/workflows/exist-db%20CI/badge.svg)
+![exist-db CI](https://github.com/joewiz/airlock/workflows/exist-db%20CI/badge.svg)
 [![Coverage percentage][coveralls-image]][coveralls-url]
 
 <img src="icon.png" align="left" width="25%"/>
@@ -22,19 +22,19 @@ Take snapshots of Airtable bases for offline browsing and transformation
 
 ## Installation
 
-1.  Download  the `airvac-1.0.0.xar` file from GitHub [releases](https://github.com/joewiz/airvac/releases) page.
+1.  Download  the `airlock-1.0.0.xar` file from GitHub [releases](https://github.com/joewiz/airlock/releases) page.
 
 2.  Open the [dashboard](http://localhost:8080/exist/apps/dashboard/index.html) of your eXist-db instance and click on `package manager`.
 
     1.  Click on the `add package` symbol in the upper left corner and select the `.xar` file you just downloaded.
 
-3.  You have successfully installed airvac into exist.
+3.  You have successfully installed airlock into exist.
 
 4.  Create a data directory structure:
 
-    - /db/apps/airvac-data
-    - /db/apps/airvac-data/bases
-    - /db/apps/airvac-data/bases.xml
+    - /db/apps/airlock-data
+    - /db/apps/airlock-data/bases
+    - /db/apps/airlock-data/bases.xml
     
     ... in which bases.xml contains this information:
     
@@ -49,7 +49,7 @@ Take snapshots of Airtable bases for offline browsing and transformation
     </bases>
     ```
 
-5. Then load <http://localhost:8080/exist/apps/airvac> and create your first snapshot.
+5. Then load <http://localhost:8080/exist/apps/airlock> and create your first snapshot.
 
 ### Building from source
 
@@ -62,7 +62,7 @@ Take snapshots of Airtable bases for offline browsing and transformation
 3.  Calling `ant`in your CLI will build both files:
   
 ```bash
-cd airvac
+cd airlock
 ant
 ```
 
@@ -71,7 +71,7 @@ ant
    ant dev
    ```   
 
-If you see `BUILD SUCCESSFUL` ant has generated a `airvac-*.xar` file in the `build/` folder. To install it, follow the instructions [above](#installation).
+If you see `BUILD SUCCESSFUL` ant has generated a `airlock-*.xar` file in the `build/` folder. To install it, follow the instructions [above](#installation).
 
 
 
@@ -121,6 +121,6 @@ AGPL-3.0 © [Joe Wicentowski](https://joewiz.org)
 [license-img]: https://img.shields.io/badge/license-AGPL%20v3-blue.svg
 [license-url]: https://www.gnu.org/licenses/agpl-3.0
 [release-img]: https://img.shields.io/badge/release-1.0.0-green.svg
-[release-url]: https://github.com/joewiz/airvac/releases/latest
-[coveralls-image]: https://coveralls.io/repos/joewiz/airvac/badge.svg
-[coveralls-url]: https://coveralls.io/r/joewiz/airvac
+[release-url]: https://github.com/joewiz/airlock/releases/latest
+[coveralls-image]: https://coveralls.io/repos/joewiz/airlock/badge.svg
+[coveralls-url]: https://coveralls.io/r/joewiz/airlock

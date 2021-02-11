@@ -1,9 +1,9 @@
 {
-  "name": "airvac",
+  "name": "airlock",
   "version": "1.0.0",
   "description": "Take snapshots of Airtable bases for offline browsing and transformation",
-  "homepage": "https://github.com/joewiz/airvac#readme",
-  "bugs": "https://github.com/joewiz/airvac/issues",
+  "homepage": "https://github.com/joewiz/airlock#readme",
+  "bugs": "https://github.com/joewiz/airlock/issues",
   "keywords": [
     "exist",
     "exist-db",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/joewiz/airvac",
+    "url": "https://github.com/joewiz/airlock",
     "license": "AGPL-3.0"
   }
 }

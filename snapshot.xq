@@ -1,7 +1,7 @@
 xquery version "3.1";
 
 import module namespace airtable="http://joewiz.org/ns/xquery/airtable";
-import module namespace app="http://joewiz.org/ns/xquery/airvac/app" at "app.xqm";
+import module namespace app="http://joewiz.org/ns/xquery/airlock/app" at "app.xqm";
 
 declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
 
@@ -37,21 +37,21 @@ declare function local:fix-columns-entry($table as map(*)*) {
 };
 
 let $base-id := request:get-parameter("base-id", ())
-let $base := doc("/db/apps/airvac-data/bases/bases.xml")//base[id eq $base-id]
+let $base := doc("/db/apps/airlock-data/bases/bases.xml")//base[id eq $base-id]
 let $base-id := $base/id/string()
 let $base-name := $base/name/string()
 let $api-key := $base/api-key/string()
-let $snapshots := doc("/db/apps/airvac-data/bases/" || $base-id || "/snapshots.xml")/snapshots
+let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")/snapshots
 let $next-id := ($snapshots/snapshot[last()]/id, "0")[1] cast as xs:integer + 1
 let $prepare :=
     (
-        xmldb:create-collection("/db/apps/airvac-data/bases/" || $base-id, "snapshots"),
-        xmldb:create-collection("/db/apps/airvac-data/bases/" || $base-id || "/snapshots", $next-id),
-        xmldb:create-collection("/db/apps/airvac-data/bases/" || $base-id || "/snapshots/" || $next-id, "tables"),
+        xmldb:create-collection("/db/apps/airlock-data/bases/" || $base-id, "snapshots"),
+        xmldb:create-collection("/db/apps/airlock-data/bases/" || $base-id || "/snapshots", $next-id),
+        xmldb:create-collection("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id, "tables"),
         xmldb:copy-resource(
-            "/db/apps/airvac-data/bases/" || $base-id,
+            "/db/apps/airlock-data/bases/" || $base-id,
             "base-metadata.json",
-            "/db/apps/airvac-data/bases/" || $base-id || "/snapshots/" || $next-id,
+            "/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id,
             "base-metadata.json"
         ),
         update insert element snapshot { element id { $next-id }, element created-dateTime { current-dateTime() } } into $snapshots
@@ -61,7 +61,7 @@ let $prepare :=
  :
  : for exporting table metadata, start from https://airtable.com/appe0AfkruafOCgrw/api/docs :)
 
-let $tables := json-doc("/db/apps/airvac-data/bases/" || $base-id || "/snapshots/" || $next-id || "/base-metadata.json")?*
+let $tables := json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id || "/base-metadata.json")?*
 let $store :=
     for $base-metadata in $tables
     let $contents := local:get-table($api-key, $base-id, $base-metadata)
@@ -78,7 +78,7 @@ let $store :=
     :)
     return
         xmldb:store(
-            "/db/apps/airvac-data/bases/" || $base-id || "/snapshots/" || $next-id || "/tables",
+            "/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id || "/tables",
             ($base-metadata?name || ".json")
                 (: space, nbsp, plus, colon, slash, bullet point :)
                 => replace("[ &#160;+:/&#x2022;]", "-")
@@ -90,8 +90,8 @@ let $store :=
             $contents => serialize(map{"method": "json", "indent": true()})
         )
 let $summarize := 
-    let $resources := xmldb:get-child-resources("/db/apps/airvac-data/bases/" || $base-id || "/snapshots/" || $next-id || "/tables")
-    let $tables := $resources ! json-doc("/db/apps/airvac-data/bases/" || $base-id || "/snapshots/" || $next-id || "/tables/" || .)
+    let $resources := xmldb:get-child-resources("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id || "/tables")
+    let $tables := $resources ! json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id || "/tables/" || .)
     let $records-count := 
         sum(
             for $table in $tables

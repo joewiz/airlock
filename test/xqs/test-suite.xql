@@ -1,13 +1,13 @@
 xquery version "3.1";
 
-(:~ This library module contains XQSuite tests for the airvac app.
+(:~ This library module contains XQSuite tests for the airlock app.
  :
  : @author Joe Wicentowski
  : @version 1.0.0
  : @see https://joewiz.org
  :)
 
-module namespace tests = "http://joewiz.org/ns/app/airvac/tests";
+module namespace tests = "http://joewiz.org/ns/app/airlock/tests";
 
 declare namespace test="http://exist-db.org/xquery/xqsuite";
 

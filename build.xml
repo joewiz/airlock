@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project default="all" name="airvac">
+<project default="all" name="airlock">
   <description>Take snapshots of Airtable bases for offline browsing and transformation</description>
   <xmlproperty file="expath-pkg.xml"/>
   <property name="project.version" value="${package(version)}"/>
-  <property name="project.app" value="airvac"/>
+  <property name="project.app" value="airlock"/>
   <property name="build.dir" value="build"/>
   <!-- Start it -->
   <target name="init" description="create build directory">

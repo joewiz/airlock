@@ -1,6 +1,6 @@
 xquery version "3.1";
 
-import module namespace app="http://joewiz.org/ns/xquery/airvac/app" at "app.xqm";
+import module namespace app="http://joewiz.org/ns/xquery/airlock/app" at "app.xqm";
 import module namespace markdown="http://exist-db.org/xquery/markdown";
 
 declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
@@ -261,11 +261,11 @@ let $snapshot-id := request:get-parameter("snapshot-id", ())
 let $table-id := request:get-parameter("table-id", ())
 let $field-id := request:get-parameter("field-id", ())
 let $record-id := request:get-parameter("record-id", ())
-let $bases := doc("/db/apps/airvac-data/bases/bases.xml")//base
+let $bases := doc("/db/apps/airlock-data/bases/bases.xml")//base
 let $base := $bases[id eq $base-id]
-let $snapshots := doc("/db/apps/airvac-data/bases/" || $base-id || "/snapshots.xml")//snapshot
+let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
 let $snapshot := $snapshots[id eq $snapshot-id]
-let $tables := if ($base-id and $snapshot-id) then xmldb:get-child-resources("/db/apps/airvac-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables") ! json-doc("/db/apps/airvac-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables/" || .) else ()
+let $tables := if ($base-id and $snapshot-id) then xmldb:get-child-resources("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables") ! json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables/" || .) else ()
 let $table := $tables[?id eq $table-id]
 let $columns := $table?columns?*
 let $records := $table?records?*
@@ -300,7 +300,7 @@ let $item :=
             <tbody>{
                 for $base in $bases
                 let $base-id := $base/id/string()
-                let $snapshots := doc("/db/apps/airvac-data/bases/" || $base-id || "/snapshots.xml")//snapshot
+                let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
                 let $base-name := $base/name/string()
                 let $api-key := $base/api-key/string()
                 let $created-dateTime := $base/created-dateTime cast as xs:dateTime
@@ -329,7 +329,7 @@ let $item :=
                 </dl>
                 <ul>
                     <!--<li><a href="../documentation.xq?base-id={$base-id}">View documentation</a></li>-->
-                    <li><a href="snapshot.xq?base-id={$base-id}">Take new snapshot</a> (Note: This may take ~1-2 minutes, depending on the size of the base; to avoid errors or omitted data, be sure that the <a href="data/{$base-id}/base-metadata.json">base-metadata.json</a> file is up-to-date, since snapshots require a complete list of every table's name; to obtain a current copy, go to <a href="https://airtable.com/{$base-id}/api/docs">this base’s API documentation</a> and use the <a href="https://chrome.google.com/webstore/detail/airtable-schema-extractor/cgcjgclmbhcibagnfhjlkigjjokeffia">Airtable Schema Extractor</a> Chrome extension to copy and paste the complete JSON file into a text editor; save the file as <code>base-metadata.json</code> and upload it to the <code>/db/apps/airvac-data/bases/{$base-id}</code> collection in eXist using eXide or a WebDAV client like oXygen or Transmit.)</li>
+                    <li><a href="snapshot.xq?base-id={$base-id}">Take new snapshot</a> (Note: This may take ~1-2 minutes, depending on the size of the base; to avoid errors or omitted data, be sure that the <a href="data/{$base-id}/base-metadata.json">base-metadata.json</a> file is up-to-date, since snapshots require a complete list of every table's name; to obtain a current copy, go to <a href="https://airtable.com/{$base-id}/api/docs">this base’s API documentation</a> and use the <a href="https://chrome.google.com/webstore/detail/airtable-schema-extractor/cgcjgclmbhcibagnfhjlkigjjokeffia">Airtable Schema Extractor</a> Chrome extension to copy and paste the complete JSON file into a text editor; save the file as <code>base-metadata.json</code> and upload it to the <code>/db/apps/airlock-data/bases/{$base-id}</code> collection in eXist using eXide or a WebDAV client like oXygen or Transmit.)</li>
                     <!--<li><a href="base-update.xq?base-id={$base-id}">Update base info</a></li>-->
                 </ul>
                 <table class="table table-bordered table-hover">
@@ -646,41 +646,41 @@ let $item :=
         ()
 let $breadcrumbs := 
     (
-        <a href="/exist/apps/airvac">Airvac</a>,
+        <a href="/exist/apps/airlock">Airvac</a>,
         text { " > " },
-        <a href="/exist/apps/airvac/browse.xq">Bases</a>,
+        <a href="/exist/apps/airlock/browse.xq">Bases</a>,
         if ($base-id) then 
             (
                 text { " > " },
-                <a href="/exist/apps/airvac/browse.xq?base-id={$base-id}">{$base-name}</a>
+                <a href="/exist/apps/airlock/browse.xq?base-id={$base-id}">{$base-name}</a>
             )
         else 
             (),
         if ($snapshot-id) then 
             (
                 text { " > " },
-                <a href="/exist/apps/airvac/browse.xq?base-id={$base-id}&amp;snapshot-id={$snapshot-id}">Snapshot {$snapshot-id}</a>
+                <a href="/exist/apps/airlock/browse.xq?base-id={$base-id}&amp;snapshot-id={$snapshot-id}">Snapshot {$snapshot-id}</a>
             )
         else 
             (),
         if ($table-id) then 
             (
                 text { " > " },
-                <a href="/exist/apps/airvac/browse.xq?base-id={$base-id}&amp;snapshot-id={$snapshot-id}&amp;table-id={$table-id}">“{$table-name}” Table</a>
+                <a href="/exist/apps/airlock/browse.xq?base-id={$base-id}&amp;snapshot-id={$snapshot-id}&amp;table-id={$table-id}">“{$table-name}” Table</a>
             )
         else 
             (),
         if ($field-id) then 
             (
                 text { " > " },
-                <a href="/exist/apps/airvac/browse.xq?base-id={$base-id}&amp;snapshot-id={$snapshot-id}&amp;table-id={$table-id}&amp;field-id={$field-id}">“{$column-name}” Field</a>
+                <a href="/exist/apps/airlock/browse.xq?base-id={$base-id}&amp;snapshot-id={$snapshot-id}&amp;table-id={$table-id}&amp;field-id={$field-id}">“{$column-name}” Field</a>
             )
         else 
             (),
         if ($record-id) then 
             (
                 text { " > " },
-                <a href="/exist/apps/airvac/browse.xq?base-id={$base-id}&amp;snapshot-id={$snapshot-id}&amp;table-id={$table-id}&amp;record-id={$record-id}">“{$record-primary-field}” Record</a>
+                <a href="/exist/apps/airlock/browse.xq?base-id={$base-id}&amp;snapshot-id={$snapshot-id}&amp;table-id={$table-id}&amp;record-id={$record-id}">“{$record-primary-field}” Record</a>
             )
         else 
             ()
