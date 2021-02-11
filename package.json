@@ -1,6 +1,6 @@
 {
   "name": "airlock",
-  "version": "1.0.0",
+  "version": "1.1.0-SNAPSHOT",
   "description": "Take snapshots of Airtable bases for offline browsing and transformation",
   "homepage": "https://github.com/joewiz/airlock#readme",
   "bugs": "https://github.com/joewiz/airlock/issues",
