@@ -17,7 +17,7 @@ Take snapshots of Airtable bases for offline browsing and transformation
 
 *   [node](http://nodejs.org) version: `12.x` \(for building from source\)
 
-*   [airtable.xq]() version: `1.0.1` or greater \(for building from source\)
+*   [airtable.xq](https://github.com/joewiz/airtable.xq) version: `1.0.1` or greater \(for building from source\)
     
 
 ## Installation
