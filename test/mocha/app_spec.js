@@ -85,17 +85,11 @@ describe('file system checks', function () {
         var repoDesc = parsed.childNamed('description').val
       }
 
-      if (fs.existsSync('expath-pkg.xml')) {
-        const exPkg = fs.readFileSync('expath-pkg.xml', 'utf8')
-        const parsed = new xmldoc.XmlDocument(exPkg)
-        var exPkgDesc = parsed.childNamed('title').val
-      }
-
-      const desc = [exPkgDesc, buildDesc, pkgDesc, repoDesc, buildDesc].filter(Boolean)
+      const desc = [buildDesc, pkgDesc, repoDesc].filter(Boolean)
       let i = 0
       // console.log(desc)
       desc.forEach(function () {
-        expect(desc[i]).to.equal(exPkgDesc)
+        expect(desc[i]).to.equal(pkgDesc)
         i++
       })
       done()
