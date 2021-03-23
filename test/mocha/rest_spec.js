@@ -29,9 +29,9 @@ describe('rest api returns', function () {
         })
     })
 
-    it.skip('file index.html exists in application root', function (done) {
+    it('application root is available from rest endpoint', function (done) {
       client
-        .get('/exist/rest/db/apps/airlock/index.html')
+        .get('/exist/rest/db/apps/airlock')
         .expect(200)
         .end(function (err, res) {
           expect(res.status).to.equal(200)

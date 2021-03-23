@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package 
-  xmlns="http://expath.org/ns/pkg" name="http://joewiz.org/ns/pkg/airlock"
-  abbrev="airlock" version="1.1.0-SNAPSHOT" spec="1.0">
-  <title>Airlock</title>
-  <dependency processor="http://exist-db.org" semver-min="5.2.99"/>
-  <dependency package="http://joewiz.org/ns/pkg/airtable" semver-min="1.0.1" semver-max="1.99.99"/>
-  <dependency package="http://exist-db.org/apps/markdown"/>
+<package xmlns="http://expath.org/ns/pkg" name="http://joewiz.org/ns/pkg/airlock" abbrev="airlock"
+    version="1.1.0-SNAPSHOT" spec="1.0">
+    <title>Airlock</title>
+    <dependency processor="http://exist-db.org" semver-min="5.2.99"/>
+    <dependency package="http://joewiz.org/ns/pkg/airtable" semver-min="1.0.1" semver-max="1.99.99"/>
+    <dependency package="http://exist-db.org/apps/markdown"/>
+    <dependency package="http://e-editiones.org/roaster"/>
 </package>
