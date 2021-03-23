@@ -120,7 +120,7 @@ declare function bases:render-airtable-flavored-markdown($markdown) {
     => markdown:parse()
 };
 
-declare function bases:render-field($base-id, $snapshot-id, $tables, $table, $record, $field-key) {
+declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, $table, $record, $field-key) {
     let $fields := $record?fields
     let $field := $fields?($field-key)
     let $columns := $table?columns
@@ -166,15 +166,7 @@ declare function bases:render-field($base-id, $snapshot-id, $tables, $table, $re
                             return
                                 element li {
                                     element a {
-                                        attribute href { 
-                                            "?" 
-                                            || string-join((
-                                                "base-id=" || $base-id,
-                                                "snapshot-id=" || $snapshot-id,
-                                                "table-id=" || $foreign-table-id,
-                                                "record-id=" || $foreign-record-id
-                                            ), "&amp;")
-                                        },
+                                        attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/" || $foreign-table-id || "/records/" || $foreign-record-id },
                                         $foreign-record-label
                                     }
                                 }
@@ -185,15 +177,7 @@ declare function bases:render-field($base-id, $snapshot-id, $tables, $table, $re
                         let $foreign-record-label := $foreign-record?fields?($primary-column-name)
                         return
                             element a {
-                                attribute href { 
-                                    "?" 
-                                    || string-join((
-                                        "base-id=" || $base-id,
-                                        "snapshot-id=" || $snapshot-id,
-                                        "table-id=" || $foreign-table-id,
-                                        "record-id=" || $foreign-record-id
-                                    ), "&amp;")
-                                },
+                                attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/" || $foreign-table-id || "/records/" || $foreign-record-id },
                                 $foreign-record-label
                             }
             case "multiSelect" return
@@ -279,7 +263,7 @@ declare function bases:view($request as map(*)) {
     let $column := $columns[?id eq $field-id]
     let $record := $records[?id eq $record-id]
     let $fields := $record?fields
-    let $render-function := function($field-key) { bases:render-field($base-id, $snapshot-id, $tables, $table, $record, $field-key) }
+    let $render-function := function($field-key) { bases:render-field($base-url, $base-id, $snapshot-id, $tables, $table, $record, $field-key) }
     let $base-name := $base/name/string()
     let $api-key := $base/api-key/string()
     let $custom-reports := $base//custom-report
