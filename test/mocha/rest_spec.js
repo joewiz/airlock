@@ -29,6 +29,7 @@ describe('rest api returns', function () {
         })
     })
 
+    this.timeout(1500)
     it('application root is available from rest endpoint', function (done) {
       client
         .get('/exist/rest/db/apps/airlock')
