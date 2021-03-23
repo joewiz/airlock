@@ -196,12 +196,12 @@ declare function keys:welcome($request as map(*)) {
                 else
                     <p>No keys have been added.</p>
             }
-            <h3>Create a new key</h3>
+            <h3>Add an API Key</h3>
             <form method="POST" action="{$base-url}/keys">
                 <div class="mb-3">
                     <label for="username">Airtable Username:</label>
                     <input type="text" id="username" name="username" class="form-control" required="required" autofocus="autofocus"/>
-                    <div class="form-text">The Airtable username associated with your API key. To help you distinguish between multiple API keys.</div>
+                    <div class="form-text">The Airtable username associated with your API Key. To help you distinguish between multiple API Keys.</div>
                 </div>
                 <div class="mb-3">
                     <label for="rest-api-key">REST API Key:</label>
