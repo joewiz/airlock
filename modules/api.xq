@@ -5,8 +5,6 @@ declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
 
 import module namespace app="http://joewiz.org/ns/xquery/airlock/app" at "app.xqm";
 import module namespace bases="http://joewiz.org/ns/xquery/airlock/bases" at "bases.xqm";
-import module namespace snapshot="http://joewiz.org/ns/xquery/airlock/snapshot" at "snapshot.xqm";
-import module namespace update="http://joewiz.org/ns/xquery/airlock/update" at "update.xqm";
 import module namespace config="http://joewiz.org/ns/xquery/airlock/config" at "config.xqm";
 import module namespace keys="http://joewiz.org/ns/xquery/airlock/keys" at "keys.xqm";
 
