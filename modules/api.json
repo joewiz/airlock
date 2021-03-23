@@ -25,469 +25,10 @@
         }
     },
     "paths": {
-        "/": {
-            "get": {
-                "summary": "Landing page",
-                "operationId": "bases:welcome",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the landing page!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/bases": {
-            "get": {
-                "summary": "List bases",
-                "operationId": "bases:view",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the listing of bases!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "summary": "Add a new base",
-                "description": "Add a new base",
-                "operationId": "bases:create-base",
-                "parameters": [
-                    {
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "query",
-                        "description": "Base ID",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "base-name",
-                        "in": "query",
-                        "description": "Base Name",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "rest-api-key",
-                        "in": "query",
-                        "description": "REST API key",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "permission-level",
-                        "in": "query",
-                        "description": "Permission level",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "notes",
-                        "in": "query",
-                        "description": "Base notes",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the result of the snapshot!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Wrong user or password"
-                    }
-                }
-            }
-        },
-        "/bases/{base-id}": {
-            "get": {
-                "summary": "View a base",
-                "operationId": "bases:view",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the info about the base!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/bases/{base-id}/edit": {
-            "get": {
-                "summary": "Edit a base",
-                "operationId": "bases:edit-base-form",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the info about the base!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "summary": "Edit a base",
-                "operationId": "bases:edit-base",
-                "parameters": [
-                    {
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "description": "Base ID",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "new-base-id",
-                        "in": "query",
-                        "description": "Base Name",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "base-name",
-                        "in": "query",
-                        "description": "Base Name",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "rest-api-key",
-                        "in": "query",
-                        "description": "REST API key",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "permission-level",
-                        "in": "query",
-                        "description": "Permission level",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "notes",
-                        "in": "query",
-                        "description": "Base notes",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the info about the base!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/bases/{base-id}/delete": {
-            "get": {
-                "summary": "Delete a base",
-                "operationId": "bases:delete-base-confirm",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the info about the base!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "summary": "Delete a base",
-                "operationId": "bases:delete-base",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the info about the base!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/bases/{base-id}/edit/custom-reports": {
-            "get": {
-                "summary": "Add new Custom Report form",
-                "description": "Add new Custom Report form",
-                "operationId": "bases:create-custom-report-form",
-                "x-constraints": {
-                    "group": "airlock"
-                },
-                "parameters": [
-                    {
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the page!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Wrong user or password"
-                    }
-                }
-            },
-            "post": {
-                "summary": "Add a new Custom Report",
-                "description": "Add a new Custom Report",
-                "operationId": "bases:create-custom-report",
-                "parameters": [
-                    {
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "report-label",
-                        "in": "query",
-                        "description": "Airtable Username",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "report-description",
-                        "in": "query",
-                        "description": "REST API key",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "report-location",
-                        "in": "query",
-                        "description": "Metadata API key",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the result of the snapshot!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Wrong user or password"
-                    }
-                }
-            }
-        },
         "/bases/{base-id}/snapshots/{snapshot-id}/delete": {
             "get": {
                 "summary": "Delete a snapshot",
                 "operationId": "bases:delete-snapshot",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "snapshot-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the info about the base!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/bases/{base-id}/snapshots/{snapshot-id}": {
-            "get": {
-                "summary": "View a base",
-                "operationId": "bases:view",
                 "parameters": [
                 	{
                         "name": "base-url",
@@ -658,6 +199,42 @@
                 }
             }
         },
+        "/bases/{base-id}/snapshots/{snapshot-id}": {
+            "get": {
+                "summary": "View a base",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "snapshot-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/bases/{base-id}/snapshot": {
             "get": {
                 "summary": "Take snapshot",
@@ -781,11 +358,11 @@
                 }
             }
         },
-        "/keys": {
+        "/bases/{base-id}/edit/custom-reports": {
             "get": {
-                "summary": "Manage API keys",
-                "description": "Manage API Keys",
-                "operationId": "keys:welcome",
+                "summary": "Add new Custom Report form",
+                "description": "Add new Custom Report form",
+                "operationId": "bases:create-custom-report-form",
                 "x-constraints": {
                     "group": "airlock"
                 },
@@ -793,6 +370,12 @@
                     {
                         "name": "base-url",
                         "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
                         "required": true,
                         "schema": { "type": "string" }
                     }
@@ -812,9 +395,9 @@
                 }
             },
             "post": {
-                "summary": "Add a new API key",
-                "description": "Login the given user",
-                "operationId": "keys:create-key",
+                "summary": "Add a new Custom Report",
+                "description": "Add a new Custom Report",
+                "operationId": "bases:create-custom-report",
                 "parameters": [
                     {
                         "name": "base-url",
@@ -823,9 +406,178 @@
                         "schema": { "type": "string" }
                     },
                     {
-                        "name": "username",
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "report-label",
                         "in": "query",
                         "description": "Airtable Username",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "report-description",
+                        "in": "query",
+                        "description": "REST API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "report-location",
+                        "in": "query",
+                        "description": "Metadata API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the result of the snapshot!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/delete": {
+            "get": {
+                "summary": "Delete a base",
+                "operationId": "bases:delete-base-confirm",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Delete a base",
+                "operationId": "bases:delete-base",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/edit": {
+            "get": {
+                "summary": "Edit a base",
+                "operationId": "bases:edit-base-form",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Edit a base",
+                "operationId": "bases:edit-base",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "description": "Base ID",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "new-base-id",
+                        "in": "query",
+                        "description": "Base Name",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "base-name",
+                        "in": "query",
+                        "description": "Base Name",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -843,9 +595,9 @@
                         }
                     },
                     {
-                        "name": "metadata-api-key",
+                        "name": "permission-level",
                         "in": "query",
-                        "description": "Metadata API key",
+                        "description": "Permission level",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -855,7 +607,134 @@
                     {
                         "name": "notes",
                         "in": "query",
-                        "description": "API key notes",
+                        "description": "Base notes",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}": {
+            "get": {
+                "summary": "View a base",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases": {
+            "get": {
+                "summary": "List bases",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the listing of bases!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new base",
+                "description": "Add a new base",
+                "operationId": "bases:create-base",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "query",
+                        "description": "Base ID",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "base-name",
+                        "in": "query",
+                        "description": "Base Name",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "rest-api-key",
+                        "in": "query",
+                        "description": "REST API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "permission-level",
+                        "in": "query",
+                        "description": "Permission level",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "description": "Base notes",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -1049,6 +928,127 @@
                     },
                     "401": {
                         "description": "Wrong user or password"
+                    }
+                }
+            }
+        },
+        "/keys": {
+            "get": {
+                "summary": "Manage API keys",
+                "description": "Manage API Keys",
+                "operationId": "keys:welcome",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new API key",
+                "description": "Login the given user",
+                "operationId": "keys:create-key",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "Airtable Username",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "rest-api-key",
+                        "in": "query",
+                        "description": "REST API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "metadata-api-key",
+                        "in": "query",
+                        "description": "Metadata API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "description": "API key notes",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the result of the snapshot!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "summary": "Landing page",
+                "operationId": "bases:welcome",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the landing page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
                     }
                 }
             }
