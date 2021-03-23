@@ -2,6 +2,115 @@ xquery version "3.1";
 
 module namespace app="http://joewiz.org/ns/xquery/airlock/app";
 
+import module namespace config="http://joewiz.org/ns/xquery/airlock/config" at "config.xqm";
+
+import module namespace login="http://exist-db.org/xquery/login" at "resource:org/exist/xquery/modules/persistentlogin/login.xql";
+
+declare namespace sm="http://exist-db.org/xquery/securitymanager";
+
+declare function app:login-form($request as map(*)) {
+    let $base-url := $request?parameters?base-url
+    let $title := "Log in"
+    let $content :=
+        <div>
+            <h1>Airlock</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" aria-current="page"><a href="{$base-url}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Log in</li>
+                </ol>
+            </nav>
+            <h2>{$title}</h2>
+            <form method="POST" class="form form-horizontal" action="{$base-url}/login">
+                <div class="mb-3">
+                    <label class="form-label" for="user">User:</label>
+                    <input class="form-control" type="text" id="name" name="user" required="required" autofocus="autofocus"/>
+                    <div class="form-text">User must be a member of the <code>airlock</code> group.</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">Password:</label>
+                    <input class="form-control" type="password" id="password" name="password"/>
+                </div>
+                <button class="btn btn-primary" type="submit">Login</button>
+            </form>
+            {
+                if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then
+                    <form method="POST" class="form form-horizontal" action="{$base-url}/login">
+                        <input type="hidden" name="logout" value="true"/>
+                        <button class="btn btn-secondary" href="{$base-url}/logout=true">Logout {sm:id()//sm:real/sm:username/string()}</button>
+                    </form>
+                else 
+                    ()
+            }
+        </div>
+    return
+        app:wrap($content, $title)
+};
+
+
+(:~
+ : Either login a user (if parameter `user` is specified) or check if the current user is logged in.
+ : Setting parameter `logout` to any value will log out the current user.
+ :
+ : Copied and adapted from tei-publisher, I think?
+ :)
+declare function app:login($request as map(*)) {
+    let $base-url := $request?parameters?base-url
+    let $logout := $request?parameters?logout
+    let $user := $request?parameters?user
+    let $loginDomain := $config:login-domain
+    return
+        if ($logout) then
+            (
+                login:set-user($loginDomain, (), false()),
+                let $title := "Success"
+                let $content :=
+                    <div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">{$title}</h4>
+                        <p>Successfully logged out</p>
+                        <p><a href="{$base-url}">Return to Home</a></p>
+                    </div>
+                return
+                    app:wrap($content, $title)
+            )
+        else if (sm:get-user-groups($user) = config:repo-permissions()?group) then
+            (
+                login:set-user($loginDomain, (), false()),
+                let $user := request:get-attribute($loginDomain || ".user")
+                return
+                    if (exists($user)) then
+                        let $title := "Success"
+                        let $content :=
+                            <div class="alert alert-success" role="alert">
+                                <h4 class="alert-heading">{$title}</h4>
+                                <p>Successfully logged in</p>
+                                <p><a href="{$base-url}">Return to Home</a></p>
+                            </div>
+                        return
+                            app:wrap($content, $title)
+                    else
+                        let $title := "Login failed"
+                        let $content :=
+                            <div class="alert alert-success" role="alert">
+                                <h4 class="alert-heading">{$title}</h4>
+                                <p>Incorrect username or password</p>
+                                <p><a href="{$base-url}">Return to Home</a></p>
+                            </div>
+                        return
+                            app:wrap($content, $title)
+            )
+        else
+            let $title := "Login failed"
+            let $content :=
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">{$title}</h4>
+                    <p>User does not belong to the <code>{config:repo-permissions()?group}</code> group.</p>
+                    <p><a href="{$base-url}">Return to Home</a></p>
+                </div>
+            return
+                app:wrap($content, $title)
+};
+
 (: see browse.xq for where the color CSS classes are used :)
 declare function app:wrap($content, $title) {
     <html lang="en">
@@ -11,7 +120,7 @@ declare function app:wrap($content, $title) {
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 
             <!-- Bootstrap CSS -->
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous"/>
 
             <style>{``[
                 body { font-family: HelveticaNeue, Helvetica, Arial, sans; }
