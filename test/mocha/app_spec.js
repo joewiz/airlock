@@ -70,19 +70,19 @@ describe('file system checks', function () {
       if (fs.existsSync('build.xml')) {
         const build = fs.readFileSync('build.xml', 'utf8')
         const parsed = new xmldoc.XmlDocument(build)
-        var buildDesc = parsed.childNamed('description').val
+        var buildDesc = parsed.childNamed('description').val.replace(/\s+/g,'')
       }
 
       if (fs.existsSync('package.json')) {
         const pkg = fs.readFileSync('package.json', 'utf8')
         const parsed = JSON.parse(pkg)
-        var pkgDesc = parsed.description
+        var pkgDesc = parsed.description.replace(/\s+/g,'')
       }
 
       if (fs.existsSync('repo.xml')) {
         const repo = fs.readFileSync('repo.xml', 'utf8')
         const parsed = new xmldoc.XmlDocument(repo)
-        var repoDesc = parsed.childNamed('description').val
+        var repoDesc = parsed.childNamed('description').val.replace(/\s+/g,'')
       }
 
       const desc = [buildDesc, pkgDesc, repoDesc].filter(Boolean)
