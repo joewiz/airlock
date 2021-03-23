@@ -5,7 +5,7 @@ xquery version "3.1";
  : the application context.
  :)
 
-module namespace config="http://exist-db.org/xquery/apps/config";
+module namespace config="http://joewiz.org/ns/xquery/airlock/config";
 
 declare namespace system="http://exist-db.org/xquery/system";
 
@@ -37,19 +37,21 @@ declare variable $config:app-root :=
 declare variable $config:app-data-parent-col := "/db/apps";
 declare variable $config:app-data-col-name := "airlock-data";
 declare variable $config:bases-col-name := "bases";
+declare variable $config:keys-col-name := "keys";
 declare variable $config:snapshots-col-name := "snapshots";
 declare variable $config:tables-json-col-name := "tables-json";
 declare variable $config:tables-xml-col-name := "tables-xml";
 
-declare variable $config:app-data-col := $config:app-data-parent-col || "/" || $config:bases-col-name;
+declare variable $config:app-data-col := $config:app-data-parent-col || "/" || $config:app-data-col-name;
 declare variable $config:bases-col := $config:app-data-col || "/" || $config:bases-col-name;
+declare variable $config:keys-col := $config:app-data-col || "/" || $config:keys-col-name;
 
 declare variable $config:bases-doc-name := "bases.xml";
+declare variable $config:keys-doc-name := "keys.xml";
 declare variable $config:base-metadata-doc-name := "base-metadata.json";
 
 declare variable $config:bases-doc := $config:bases-col || "/" || $config:bases-doc-name;
-
-
+declare variable $config:keys-doc := $config:keys-col || "/" || $config:keys-doc-name;
 
 (:~
  : Returns the repo.xml descriptor for the current application.

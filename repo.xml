@@ -9,6 +9,9 @@
     <copyright>true</copyright>
     <type>application</type>
     <target>airlock</target>
+    <prepare/>    
+    <finish>post-install.xq</finish>
+    <permissions user="airlock" password="airlock" group="airlock" mode="rwxrwxr-x"/>
     <changelog>
         <change version="1.0.0">
             <ul xmlns="http://www.w3.org/1999/xhtml">
