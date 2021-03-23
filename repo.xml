@@ -9,10 +9,22 @@
     <copyright>true</copyright>
     <type>application</type>
     <target>airlock</target>
-    <prepare/>    
+    <prepare/>
     <finish>post-install.xq</finish>
     <permissions user="airlock" password="airlock" group="airlock" mode="rwxrwxr-x"/>
     <changelog>
+        <change version="2.0.0">
+            <ul xmlns="http://www.w3.org/1999/xhtml">
+                <li>New: Simplified installation and added in-app form-based management of API keys,
+                    bases, and custom reports - <a href="https://github.com/joewiz/airlock/pull/2"
+                        >#2</a></li>
+                <li>New: Limited access to keys and management functions limited to users of the
+                    airlock group, allowing guest users to view base snapshots</li>
+                <li>New: Adopted <a href="https://github.com/eeditiones/roaster">Roaster</a> for
+                    cleaner URLs - <a href="https://github.com/joewiz/airlock/issues/1">#1</a></li>
+                <li>New: Adopted Bootstrap 5 to simplify CSS</li>
+            </ul>
+        </change>
         <change version="1.0.0">
             <ul xmlns="http://www.w3.org/1999/xhtml">
                 <li>Initial release</li>
