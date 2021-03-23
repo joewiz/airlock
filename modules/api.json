@@ -1,0 +1,1065 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Airlock API",
+        "description": "Airlock custom endpoints"
+    },
+    "servers": [
+        {
+            "description": "Endpoint for testing on localhost",
+            "url": "http://localhost:8080/exist/apps/airlock"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic"
+            },
+            "cookieAuth": {
+                "type": "apiKey",
+                "name": "airlock.joewiz.org.login",
+                "in": "cookie"
+            }
+        }
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Landing page",
+                "operationId": "bases:welcome",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the landing page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases": {
+            "get": {
+                "summary": "List bases",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the listing of bases!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new base",
+                "description": "Add a new base",
+                "operationId": "bases:create-base",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "query",
+                        "description": "Base ID",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "base-name",
+                        "in": "query",
+                        "description": "Base Name",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "rest-api-key",
+                        "in": "query",
+                        "description": "REST API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "permission-level",
+                        "in": "query",
+                        "description": "Permission level",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "description": "Base notes",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the result of the snapshot!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}": {
+            "get": {
+                "summary": "View a base",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/edit": {
+            "get": {
+                "summary": "Edit a base",
+                "operationId": "bases:edit-base-form",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Edit a base",
+                "operationId": "bases:edit-base",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "description": "Base ID",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "new-base-id",
+                        "in": "query",
+                        "description": "Base Name",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "base-name",
+                        "in": "query",
+                        "description": "Base Name",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "rest-api-key",
+                        "in": "query",
+                        "description": "REST API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "permission-level",
+                        "in": "query",
+                        "description": "Permission level",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "description": "Base notes",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/delete": {
+            "get": {
+                "summary": "Delete a base",
+                "operationId": "bases:delete-base-confirm",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Delete a base",
+                "operationId": "bases:delete-base",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/edit/custom-reports": {
+            "get": {
+                "summary": "Add new Custom Report form",
+                "description": "Add new Custom Report form",
+                "operationId": "bases:create-custom-report-form",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new Custom Report",
+                "description": "Add a new Custom Report",
+                "operationId": "bases:create-custom-report",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "report-label",
+                        "in": "query",
+                        "description": "Airtable Username",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "report-description",
+                        "in": "query",
+                        "description": "REST API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "report-location",
+                        "in": "query",
+                        "description": "Metadata API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the result of the snapshot!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/snapshots/{snapshot-id}/delete": {
+            "get": {
+                "summary": "Delete a snapshot",
+                "operationId": "bases:delete-snapshot",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "snapshot-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/snapshots/{snapshot-id}": {
+            "get": {
+                "summary": "View a base",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "snapshot-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}": {
+            "get": {
+                "summary": "View a base",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "snapshot-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "table-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}/records/{record-id}": {
+            "get": {
+                "summary": "View a base",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "snapshot-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "table-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "record-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}/fields/{field-id}": {
+            "get": {
+                "summary": "View a base",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "snapshot-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "table-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "field-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/snapshot": {
+            "get": {
+                "summary": "Take snapshot",
+                "operationId": "bases:create-snapshot",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the result of the snapshot!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/base-metadata": {
+            "post": {
+                "summary": "Post body as application/octet-stream",
+                "operationId": "bases:update-base-metadata",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "files[]": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Upload result",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Permission denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "details": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Upload collection not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Upload collection not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/keys": {
+            "get": {
+                "summary": "Manage API keys",
+                "description": "Manage API Keys",
+                "operationId": "keys:welcome",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new API key",
+                "description": "Login the given user",
+                "operationId": "keys:create-key",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "Airtable Username",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "rest-api-key",
+                        "in": "query",
+                        "description": "REST API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "metadata-api-key",
+                        "in": "query",
+                        "description": "Metadata API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "description": "API key notes",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the result of the snapshot!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            }
+        },
+        "/keys/{key-id}/delete": {
+            "get": {
+                "summary": "Delete API key",
+                "description": "Delete API key",
+                "operationId": "keys:delete-key-confirm",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "key-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Delete API key",
+                "description": "Delete API key",
+                "operationId": "keys:delete-key",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "key-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/keys/{key-id}": {
+            "get": {
+                "summary": "Edit API key",
+                "description": "Edit API key",
+                "operationId": "keys:edit-form",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "key-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Edit API key",
+                "description": "Edit API key",
+                "operationId": "keys:update-key",
+                "x-constraints": {
+                    "group": "airlock"
+                },
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "key-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "Airtable Username",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "rest-api-key",
+                        "in": "query",
+                        "description": "REST API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "metadata-api-key",
+                        "in": "query",
+                        "description": "Metadata API key",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "description": "API key notes",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the result of the snapshot!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "cookieAuth": []
+        },
+        {
+            "basicAuth": []
+        }
+    ]
+}

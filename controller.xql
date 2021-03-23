@@ -13,11 +13,17 @@ if ($exist:path eq "") then
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <redirect url="{request:get-uri()}/"/>
     </dispatch>
-
+    
 (: all other requests are passed on the Open API router :)
 else
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/modules/api.xq">
+        <forward url="{
+            (: login.xq runs as dba since it needs to check group :)
+            if ($exist:path eq "/login") then
+                $exist:controller || "/modules/login.xq"
+            else
+                $exist:controller || "/modules/api.xq"
+            }">
             <set-header name="Access-Control-Allow-Origin" value="*"/>
             <set-header name="Access-Control-Allow-Credentials" value="true"/>
             <set-header name="Access-Control-Allow-Methods" value="GET, POST, DELETE, PUT, PATCH, OPTIONS"/>

@@ -1,0 +1,117 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Airlock API",
+        "description": "Airlock custom endpoints"
+    },
+    "servers": [
+        {
+            "description": "Endpoint for testing on localhost",
+            "url": "http://localhost:8080/exist/apps/airlock"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic"
+            },
+            "cookieAuth": {
+                "type": "apiKey",
+                "name": "airlock.joewiz.org.login",
+                "in": "cookie"
+            }
+        }
+    },
+    "paths": {
+        "/login": {
+            "get": {
+                "summary": "Edit API key",
+                "description": "Edit API key",
+                "operationId": "app:login-form",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Log the user in",
+                "description": "Log the given user in",
+                "operationId": "app:login",
+                "parameters": [
+                    {
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "user",
+                        "in": "query",
+                        "description": "Name of the user",
+                        "schema": {
+                            "type": "string",
+                            "example": "tei",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "simple",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "logout",
+                        "in": "query",
+                        "description": "Set to some value to log out the current user",
+                        "schema": {
+                            "type": "string",
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the page!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong user or password"
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "cookieAuth": []
+        },
+        {
+            "basicAuth": []
+        }
+    ]
+}
