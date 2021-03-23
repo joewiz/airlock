@@ -13,6 +13,11 @@
     <finish>post-install.xq</finish>
     <permissions user="airlock" password="airlock" group="airlock" mode="rwxrwxr-x"/>
     <changelog>
+        <change version="2.0.1">
+            <ul xmlns="http://www.w3.org/1999/xhtml">
+                <li>Fixed: Package metadata and README</li>
+            </ul>
+        </change>
         <change version="2.0.0">
             <ul xmlns="http://www.w3.org/1999/xhtml">
                 <li>New: Simplified installation and added in-app form-based management of API keys,

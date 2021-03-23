@@ -22,34 +22,15 @@ Take snapshots of Airtable bases for offline browsing and transformation
 
 ## Installation
 
-1.  Download  the `airlock-1.1.0-SNAPSHOT.xar` file from GitHub [releases](https://github.com/joewiz/airlock/releases) page.
+1.  Download  the `airlock-2.0.1.xar` file from GitHub [releases](https://github.com/joewiz/airlock/releases) page.
 
-2.  Open the [dashboard](http://localhost:8080/exist/apps/dashboard/index.html) of your eXist-db instance and click on `package manager`.
+2.  Open the [dashboard](http://localhost:8080/exist/apps/dashboard/index.html) of your eXist-db instance and click on `Package Manager`.
 
     1.  Click on the `add package` symbol in the upper left corner and select the `.xar` file you just downloaded.
 
 3.  You have successfully installed airlock into exist.
 
-4.  Create a data directory structure:
-
-    - /db/apps/airlock-data
-    - /db/apps/airlock-data/bases
-    - /db/apps/airlock-data/bases.xml
-    
-    ... in which bases.xml contains this information:
-    
-    ```xml
-    <bases>
-        <base>
-            <id><!--insert Base ID here --></id>
-            <name><!-- insert Base name here --></name>
-            <api-key><!-- insert your API key here --></api-key>
-            <created-dateTime>2021-02-10T23:50:39.93-05:00</created-dateTime>
-        </base>
-    </bases>
-    ```
-
-5. Then load <http://localhost:8080/exist/apps/airlock> and create your first snapshot.
+4.  Load <http://localhost:8080/exist/apps/airlock> and create your first snapshot.
 
 ### Building from source
 
