@@ -101,7 +101,7 @@ AGPL-3.0 © [Joe Wicentowski](https://joewiz.org)
 
 [license-img]: https://img.shields.io/badge/license-AGPL%20v3-blue.svg
 [license-url]: https://www.gnu.org/licenses/agpl-3.0
-[release-img]: https://img.shields.io/badge/release-1.0.0-green.svg
+[release-img]: https://img.shields.io/github/v/release/joewiz/airlock
 [release-url]: https://github.com/joewiz/airlock/releases/latest
 [coveralls-image]: https://coveralls.io/repos/joewiz/airlock/badge.svg
 [coveralls-url]: https://coveralls.io/r/joewiz/airlock
