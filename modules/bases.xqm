@@ -715,7 +715,7 @@ declare function bases:delete-base-confirm($request as map(*)) {
     let $base-url := $request?parameters?base-url
     let $base-id := $request?parameters?base-id
     let $base := doc("/db/apps/airlock-data/bases/bases.xml")//base[id eq $base-id]
-    let $title := "Are you sure?"
+    let $title := "Delete this base?"
     let $content := 
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading">{$title}</h4>

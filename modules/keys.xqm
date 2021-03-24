@@ -24,7 +24,7 @@ declare function keys:create-key-set($key-id as xs:string, $username as xs:strin
 declare function keys:delete-key-confirm($request as map(*)) {
     let $base-url := $request?parameters?base-url
     let $key-id := $request?parameters?key-id
-    let $title := "Are you sure?"
+    let $title := "Delete this key?"
     let $content := 
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading">{$title}</h4>
