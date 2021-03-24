@@ -1259,7 +1259,7 @@ declare function bases:welcome($request as map(*)) {
                     if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then 
                         <li><a href="{$base-url}/login?logout=true">Log out</a>. You are logged in as {sm:id()//sm:real/sm:username/string()}.</li>
                     else
-                        <li><a href="{$base-url}/login?logout=true">Log in</a></li>
+                        <li><a href="{$base-url}/login">Log in</a></li>
                 }
             </ul>
         </div>
