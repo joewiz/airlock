@@ -29,7 +29,7 @@ describe('rest api returns', function () {
         })
     })
 
-    it('application root is available from rest endpoint', function (done) {
+    it.skip('application root is available from rest endpoint', function (done) {
       client
         .get('/exist/rest/db/apps/airlock')
         .expect(200)
