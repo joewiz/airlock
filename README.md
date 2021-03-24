@@ -11,26 +11,28 @@ Take snapshots of Airtable bases for offline browsing and transformation
 
 ## Requirements
 
-*   [eXist-db](http://exist-db.org) version: `5.3.0-SNAPSHOT` or greater
-
-*   [airtable.xq](https://github.com/joewiz/airtable.xq) version: `1.0.1` or greater
+*   [eXist-db](https://exist-db.org) version: `5.3.0-SNAPSHOT` or greater
     
-*   [ant](http://ant.apache.org) version: `1.10.7` \(for building from source\)
+*   [ant](https://ant.apache.org) version: `1.10.7` \(for building from source\)
 
-*   [node](http://nodejs.org) version: `12.x` \(for building from source\)
+*   [node](https://nodejs.org) version: `12.x` \(for building from source\)
 
 
 ## Installation
 
-1.  Download the `airlock-2.0.2.xar` file from GitHub [Releases](https://github.com/joewiz/airlock/releases) page.
+This package is published to [the eXist-db public repository](https://exist-db.org/exist/apps/public-repo). To install it from there:
 
-2.  Open [Dashboard](http://localhost:8080/exist/apps/dashboard/index.html) on your eXist-db instance and click on `Package Manager`.
+1.  Open [Dashboard](http://localhost:8080/exist/apps/dashboard/index.html) on your local eXist-db instance, log into Dashboard as an administrator (user `admin` and the password you set for this user; the password may be blank if you did not set one up after installing eXist) and click on `Package Manager`. 
 
-    1.  Click on the `Upload` button in the upper left corner and select the `.xar` file you just downloaded.
+2.  In the `Package Manager` window, click on the `Available` tab, where you will find the package listed. To download and install the package, click on the downward-facing arrow icon in the package description.
 
-3.  You have successfully installed Airlock into eXist.
+> Or, if you prefer to download the package from GitHub Releases, follow these directions:
+> 
+> 1.  Download the `airlock-2.0.2.xar` file from GitHub [Releases](https://github.com/joewiz/airlock/releases) page.
+> 
+> 2.  Open [Dashboard](http://localhost:8080/exist/apps/dashboard/index.html) as described above, click on the `Upload` button in the upper left corner, and select the `.xar` file you just downloaded. (For a full offline installation, you will need to download the latest `.xar` release of: [airtable.xq](https://github.com/joewiz/airtable.xq), [Roaster](https://github.com/eeditiones/roaster), and [exist-markdown](https://github.com/eXist-db/exist-markdown) too.)
 
-4.  Load <http://localhost:8080/exist/apps/airlock>, log into the app as a user in the `airlock` group (by default, the app creates a user `airlock` with password `airlock`), add your Airtable API Key, add a base ID, and take your first snapshot.
+Having installed Airlock, open <http://localhost:8080/exist/apps/airlock>, log into the app as a user in the `airlock` group (by default, the app creates a user `airlock` with password `airlock`), add your Airtable API Key, add a base ID, and take your first snapshot.
 
 ### Building from source
 
@@ -58,19 +60,19 @@ If you see `BUILD SUCCESSFUL` ant has generated a `airlock-*.xar` file in the `b
 
 ## Running Tests
 
-To run tests locally your app needs to be installed in a running exist-db instance at the default port `8080` and with the default dba user `admin` with the default empty password.
+To run tests locally your app needs to be installed in a running eXist-db instance at the default port `8080` and with the default dba user `admin` with the default empty password.
 
-A quick way to set this up for docker users is to simply issue:
+A quick way to set this up for Docker users is to simply issue:
 
 ```bash
 docker run -dit -p 8080:8080 existdb/existdb:release
 ```
 
-After you finished installing the application, you can run the full testsuite locally.
+After you finished installing the application, you can run the full test suite locally.
 
 ### Unit-tests
 
-This app uses [mochajs](https://mochajs.org) as a test-runner. To run both xquery and javascript unit-tests type:
+This app uses [mochajs](https://mochajs.org) as a test-runner. To run both XQuery and Javascript unit-tests, type:
 
 ```bash
 npm test
@@ -78,7 +80,7 @@ npm test
 
 ### Integration-tests
 
-This app uses [cypress](https://www.cypress.io) for integration tests, just type:
+This app uses [cypress](https://www.cypress.io) for integration tests, type:
 
 ```bash
 npm run cypress
