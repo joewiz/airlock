@@ -1,4 +1,4 @@
-# airlock
+# Airlock
 
 [![License][license-img]][license-url]
 [![GitHub release][release-img]][release-url]
@@ -11,26 +11,26 @@ Take snapshots of Airtable bases for offline browsing and transformation
 
 ## Requirements
 
-*   [exist-db](http://exist-db.org/exist/apps/homepage/index.html) version: `5.3.0-SNAPSHOT` or greater
+*   [eXist-db](http://exist-db.org) version: `5.3.0-SNAPSHOT` or greater
 
+*   [airtable.xq](https://github.com/joewiz/airtable.xq) version: `1.0.1` or greater
+    
 *   [ant](http://ant.apache.org) version: `1.10.7` \(for building from source\)
 
 *   [node](http://nodejs.org) version: `12.x` \(for building from source\)
 
-*   [airtable.xq](https://github.com/joewiz/airtable.xq) version: `1.0.1` or greater \(for building from source\)
-    
 
 ## Installation
 
-1.  Download  the `airlock-2.0.2.xar` file from GitHub [releases](https://github.com/joewiz/airlock/releases) page.
+1.  Download the `airlock-2.0.2.xar` file from GitHub [Releases](https://github.com/joewiz/airlock/releases) page.
 
-2.  Open the [dashboard](http://localhost:8080/exist/apps/dashboard/index.html) of your eXist-db instance and click on `Package Manager`.
+2.  Open [Dashboard](http://localhost:8080/exist/apps/dashboard/index.html) on your eXist-db instance and click on `Package Manager`.
 
     1.  Click on the `add package` symbol in the upper left corner and select the `.xar` file you just downloaded.
 
-3.  You have successfully installed airlock into exist.
+3.  You have successfully installed Airlock into exist.
 
-4.  Load <http://localhost:8080/exist/apps/airlock> and create your first snapshot.
+4.  Load <http://localhost:8080/exist/apps/airlock>, log into the app as a user in the `airlock` group (by default, the app creates a user `airlock` with password `airlock`), add your Airtable API Key, add a base ID, and take your first snapshot.
 
 ### Building from source
 
