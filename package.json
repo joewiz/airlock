@@ -27,7 +27,7 @@
   },
   "license": "AGPL-3.0",
   "scripts": {
-    "test": "mocha test/mocha/ --recursive --exit && mocha test/xqs/*.js",
+    "test": "mocha test/mocha/ --recursive --exit",
     "cypress": "cypress run"
   },
   "repository": {
