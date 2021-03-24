@@ -13,12 +13,6 @@ if ($exist:path eq "") then
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <redirect url="{request:get-uri()}/"/>
     </dispatch>
-    
-(: allow requests for the test runner endpoint through :)
-else if ($exist:path eq "/test/xqs/test-runner.xq") then
-    <ignore xmlns="http://exist.sourceforge.net/NS/exist">
-        <cache-control cache="yes"/>
-    </ignore>
 
 (: all other requests are passed on the Open API router :)
 else
