@@ -22,7 +22,7 @@ Take snapshots of Airtable bases for offline browsing and transformation
 
 ## Installation
 
-1.  Download  the `airlock-2.1.0-SNAPSHOT.xar` file from GitHub [releases](https://github.com/joewiz/airlock/releases) page.
+1.  Download  the `airlock-2.0.2.xar` file from GitHub [releases](https://github.com/joewiz/airlock/releases) page.
 
 2.  Open the [dashboard](http://localhost:8080/exist/apps/dashboard/index.html) of your eXist-db instance and click on `Package Manager`.
 
