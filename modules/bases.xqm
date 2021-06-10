@@ -129,28 +129,47 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
     let $type-options := $column?typeOptions
     return
         switch ($type)
-            (: TODO: add handling for these types:
-                - formula(text|date)
+            (: TODO: Create additional test fields for
                 - lookup(error|text|multilineText|foreignKey)
-                - rollup
-                - select
+            Check color options for:
                 - checkbox
-                - date
-                - number
-                - collaborator
-                - multipleAttachment
+            Split these cases into per-field-type functions, and eliminate the copied/pasted versions
             :)
-            case "text" return
-                if ($type-options?validatorName eq "url") then
-                    element a {
-                        attribute href {
-                            $field
-                        },
-                        $field
-                    }
+            case "barcode" return
+                (: "Barcode": {"text": "1234"} :)
+                if ($field instance of map(*)) then
+                    if ($field?text) then
+                        $field?text
+                    else
+                        "UNKNOWN BARCODE TYPE " || map:keys($field) || ": " || serialize($field, map { "method": "adaptive" })
                 else
+                    "UNKNOWN BARCODE TYPE: " || map:keys($field) || ": " || serialize($field, map { "method": "adaptive" })
+            case "phone" return
+                element a {
+                    attribute href { "tel:" || replace($field, "\D", "") },
                     $field
-            case "multilineText"
+                }
+            case "text" return
+                switch ($type-options?validatorName)
+                    case "url" return
+                        element a {
+                            attribute href { $field },
+                            $field
+                        }
+                    case "email" return
+                        element a {
+                            attribute href { "mailto:" || $field },
+                            $field
+                        }
+                    default return
+                        $field
+            case "button" return
+                element a {
+                    attribute class { "btn btn-primary" },
+                    attribute href { $field?url },
+                    $field?label
+                }
+            case "multilineText" 
             case "richText" return
                 bases:render-airtable-flavored-markdown($field)
             case "foreignKey" return
@@ -180,6 +199,15 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                                 attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/" || $foreign-table-id || "/records/" || $foreign-record-id },
                                 $foreign-record-label
                             }
+            case "select" return
+                let $value := $field
+                let $choices := $type-options?choices
+                let $color := $choices?*[?name eq $value]?color
+                return
+                    element span {
+                        attribute class { "badge rounded-pill " || $bases:color-to-css-class?($color) },
+                        $value
+                    }
             case "multiSelect" return
                 let $values := $field?*
                 let $choices := $type-options?choices
@@ -214,35 +242,313 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                 let $size := $attachment?size
                 return
                     switch ($type)
-                        case "image/jpeg" case "application/pdf" return
+                        case "image/png" case "image/jpeg" case "application/pdf" return
                             let $thumbnails := $attachment?thumbnails
-                            let $large := $thumbnails?large
+                            let $small := $thumbnails?small
                             return
                                 element p {
                                     element a {
                                         attribute href { $url },
                                         element img {
                                             attribute src { 
-                                                $large?url
+                                                $small?url
                                             }
                                         }
                                     }
                                 }
                         default return
                             "unknown image type " || $type
-            default return
-                if ($field instance of array(*)) then
-                    if (array:size($field) gt 1) then
-                        element ul {
-                            $field?* ! element li { . } 
+            case "count" 
+            case "formula" 
+            case "lookup"
+            case "rollup" return
+                switch ($type-options?resultType) 
+                    case "text" return 
+                        if ($field instance of array(*)) then
+                            $field?*
+                        else
+                            $field
+                    case "number" return 
+                        if ($field instance of map(*)) then
+                            if ($field?specialValue) then
+                                element em { "not a number" }
+                            else
+                                element em { map:keys($field) || ": " || $field?* }
+                        else if ($field instance of array (*)) then
+                            element ol {
+                                for $value in $field?*
+                                return
+                                    element li { $value }
+                            }
+                        else if ($type-options?format eq "percentV2") then
+                            format-number($field, "0." || string-join((1 to $type-options?precision cast as xs:integer) ! "0") || "%")
+                        else 
+                            $field
+                    case "date" return 
+                        if ($type-options?isDateTime) then
+                            let $dateTime := $field cast as xs:dateTime
+                            let $date-format :=
+                                switch ($type-options?dateFormat)
+                                    case "Local" return
+                                        "[M]/[D]/[Y]"
+                                    case "Friendly" return
+                                        "[MNn] [D], [Y]"
+                                    case "US" return
+                                        "[M]/[D]/[Y]"
+                                    case "European" return
+                                        "[D]/[M]/[Y]"
+                                    case "ISO" return
+                                        "[Y0001]-[M01]-[D01]"
+                                    default return
+                                        "UNKNOWN"
+                            let $time-format := 
+                                if ($type-options?timeFormat eq "24hour") then
+                                    "[H01]:[m01]"
+                                else (: if ($type-options?timeFormat eq "12hour") then :)
+                                    "[h]:[m01][Pn]"
+                            let $format := $date-format || " " || $time-format
+                            return
+                                if ($format ne "UNKNOWN") then 
+                                    format-dateTime($dateTime, $format)
+                                else
+                                    "UNKNOWN FORMAT OPTIONS FOR DATE: " || $field
+                        else
+                            let $date := $field cast as xs:date
+                            let $format :=
+                                switch ($type-options?dateFormat)
+                                    case "Local" return
+                                        "[M]/[D]/[Y]"
+                                    case "Friendly" return
+                                        "[MNn] [D], [Y]"
+                                    case "US" return
+                                        "[M]/[D]/[Y]"
+                                    case "European" return
+                                        "[D]/[M]/[Y]"
+                                    case "ISO" return
+                                        "[Y0001]-[M01]-[D01]"
+                                    default return
+                                        "UNKNOWN"
+                            return
+                                if ($format ne "UNKNOWN") then 
+                                    format-date($date, $format)
+                                else
+                                    "UNKNOWN FORMAT OPTIONS FOR DATE: " || $field
+                    (: TODO get foreignkey lookups working properly :)
+                    (:
+                    case "foreignKey" return
+                        let $foreign-table-rollup-column-id := $column?foreignTableRollupColumnId
+                        let $relation-column := $
+                        let $foreign-table-for-rollup-column := $tables[?id eq $relation-column?foreignTableId]
+                        let $foreign-table-rollup-column := $foreign-table-for-rollup-column?columns?*[?id eq $foreign-table-rollup-column-id]
+                        let $foreign-records := $foreign-table-for-rollup-column?records?*[?id = $field?*]
+                        return
+                            if (array:size($field) gt 1) then
+                                element ul {
+                                    for $foreign-record-id in $field?*
+                                    let $foreign-record := $foreign-table?records?*[?id eq $foreign-record-id]
+                                    let $foreign-record-label := $foreign-record?fields?($primary-column-name)
+                                    return
+                                        element li {
+                                            element a {
+                                                attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/" || $foreign-table-id || "/records/" || $foreign-record-id },
+                                                $foreign-record-label
+                                            }
+                                        }
+                                }
+                            else
+                                let $foreign-record-id := $field
+                                let $foreign-record := $foreign-table?records?*[?id eq $foreign-record-id]
+                                let $foreign-record-label := $foreign-record?fields?($primary-column-name)
+                                return
+                                    element a {
+                                        attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/" || $foreign-table-id || "/records/" || $foreign-record-id },
+                                        $foreign-record-label
+                                    }
+                    :)
+                    default return
+                        "UNIMPLEMENTED " || upper-case($type) || " FORMAT: " || $field
+            (: TODO handle timeZone: client vs. UTC - but no apparent difference in Airtable UI? :)
+            case "date" return
+                if ($type-options?isDateTime) then
+                    let $dateTime := $field cast as xs:dateTime
+                    let $date-format :=
+                        switch ($type-options?dateFormat)
+                            case "Local" return
+                                "[M]/[D]/[Y]"
+                            case "Friendly" return
+                                "[MNn] [D], [Y]"
+                            case "US" return
+                                "[M]/[D]/[Y]"
+                            case "European" return
+                                "[D]/[M]/[Y]"
+                            case "ISO" return
+                                "[Y0001]-[M01]-[D01]"
+                            default return
+                                "UNKNOWN"
+                    let $time-format := 
+                        if ($type-options?timeFormat eq "24hour") then
+                            "[H01]:[m01]"
+                        else (: if ($type-options?timeFormat eq "12hour") then :)
+                            "[h]:[m01][Pn]"
+                    let $format := $date-format || " " || $time-format
+                    return
+                        if ($format ne "UNKNOWN") then 
+                            format-dateTime($dateTime, $format)
+                        else
+                            "UNKNOWN FORMAT OPTIONS FOR DATE: " || $field
+                else
+                    let $date := $field cast as xs:date
+                    let $format :=
+                        switch ($type-options?dateFormat)
+                            case "Local" return
+                                "[M]/[D]/[Y]"
+                            case "Friendly" return
+                                "[MNn] [D], [Y]"
+                            case "US" return
+                                "[M]/[D]/[Y]"
+                            case "European" return
+                                "[D]/[M]/[Y]"
+                            case "ISO" return
+                                "[Y0001]-[M01]-[D01]"
+                            default return
+                                "UNKNOWN"
+                    return
+                        if ($format ne "UNKNOWN") then 
+                            format-date($date, $format)
+                        else
+                            "UNKNOWN FORMAT OPTIONS FOR DATE: " || $field
+            (: TODO: show actual rating symbols, filled vs. outline: type-options: ?icon, ?max, ?color :)
+            case "rating" return
+                $field
+            case "autoNumber" return
+                $field
+            case "number" return
+                switch ($type-options?format) 
+                    case "decimal" return
+                        format-number($field, "0." || string-join((1 to $type-options?precision cast as xs:integer) ! "0"))
+                    case "integer" return
+                        format-number($field, "0")
+                    case "currency" return
+                        format-number($field, $type-options?symbol || "0." || string-join((1 to $type-options?precision cast as xs:integer) ! "0"))
+                    case "percentV2" return
+                        format-number($field, "0." || string-join((1 to $type-options?precision cast as xs:integer) ! "0") || "%")
+                    case "duration" return
+                        let $duration := xs:duration("PT" || $field || "S")
+                        let $hours := hours-from-duration($duration)
+                        let $minutes := minutes-from-duration($duration) => format-number("00")
+                        let $seconds := seconds-from-duration($duration)
+                        return
+                            switch ($type-options?durationFormat)
+                                case "h:mm" return
+                                    $hours || ":" || $minutes
+                                case "h:mm:ss" return
+                                    $hours || ":" || $minutes || ":" || $seconds => format-number("00")
+                                case "h:mm:ss.S" return
+                                    $hours || ":" || $minutes || ":" || $seconds => format-number("00.0")
+                                case "h:mm:ss.SS" return
+                                    $hours || ":" || $minutes || ":" || $seconds => format-number("00.00")
+                                case "h:mm:ss.SSS" return
+                                    $hours || ":" || $minutes || ":" || $seconds => format-number("00.000")
+                                default return
+                                    "UNIMPLEMENTED DURATION: " || $field
+                    default return
+                        "UNSUPPORTED TYPE: " || $field
+            case "collaborator" 
+            case "multiCollaborator" return
+                let $computation-type := $type-options?computationType
+                let $values := if ($field instance of array(*)) then $field?* else $field
+                return
+                    if (count($values) gt 1) then
+                        element ol {
+                            for $value in $values
+                            return
+                                element li {
+                                    text { $value?name || " <" },
+                                    element a {
+                                        attribute href { "mailto:" || $value?email },
+                                        $value?email
+                                    },
+                                    text { ">" }
+                                }
                         }
                     else
-                        $field?*
-                (: "Position Length" : { "specialValue" : "NaN" } :)
-                else if ($field instance of map(*)) then
-                    $field?*
+                        let $value := $values
+                        return
+                            (
+                                text { $value?name || " <" },
+                                element a {
+                                    attribute href { "mailto:" || $value?email },
+                                    $value?email
+                                },
+                                text { ">" }
+                            )
+            (: TODO "computation" can be used for createdBy, lastModifiedBy with various field options :)
+            case "computation" return
+                switch ($type-options?resultType) 
+                    case "collaborator" return
+                        let $value := $field
+                        return
+                            (
+                                text { $value?name || " <" },
+                                element a {
+                                    attribute href { "mailto:" || $value?email },
+                                    $value?email
+                                },
+                                text { ">" }
+                            )
+                    default return
+                        $field
+            case "checkbox" return
+                if ($field) then
+                    let $color := $type-options?color
+                    return
+                        (: TODO move these SVG definitions into global map variable, to facilitate reuse - between checkbox & rating
+                            and test colors using pro/enterprise plan definitions:
+                            
+                            color: "yellowBright" | "orangeBright" | "redBright" | "pinkBright" | "purpleBright" | "blueBright" | "cyanBright" | "tealBright" | "greenBright" | "grayBright",
+                        
+                        :)
+                        switch ($type-options?icon)
+                            case "star" return 
+                                (: https://icons.getbootstrap.com/icons/star-fill/ :) 
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="{$color}" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                    <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.283.95l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                                </svg>
+                            case "heart" return 
+                                (: https://icons.getbootstrap.com/icons/heart-fill/ :)
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="{$color}" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                                </svg>
+                            case "thumbsUp" return
+                                (: https://icons.getbootstrap.com/icons/hand-thumbs-up-fill/ :)
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="{$color}" class="bi bi-hand-thumbs-up-fill" viewBox="0 0 16 16">
+                                    <path d="M6.956 1.745C7.021.81 7.908.087 8.864.325l.261.066c.463.116.874.456 1.012.964.22.817.533 2.512.062 4.51a9.84 9.84 0 0 1 .443-.05c.713-.065 1.669-.072 2.516.21.518.173.994.68 1.2 1.273.184.532.16 1.162-.234 1.733.058.119.103.242.138.363.077.27.113.567.113.856 0 .289-.036.586-.113.856-.039.135-.09.273-.16.404.169.387.107.819-.003 1.148a3.162 3.162 0 0 1-.488.9c.054.153.076.313.076.465 0 .306-.089.626-.253.912C13.1 15.522 12.437 16 11.5 16H8c-.605 0-1.07-.081-1.466-.218a4.826 4.826 0 0 1-.97-.484l-.048-.03c-.504-.307-.999-.609-2.068-.722C2.682 14.464 2 13.846 2 13V9c0-.85.685-1.432 1.357-1.616.849-.231 1.574-.786 2.132-1.41.56-.626.914-1.279 1.039-1.638.199-.575.356-1.54.428-2.59z"/>
+                                </svg>
+                            case "flag" return 
+                                (: https://icons.getbootstrap.com/icons/flag-fill/ :)
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="{$color}" class="bi bi-flag-fill" viewBox="0 0 16 16">
+                                    <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
+                                </svg>
+                            default (: case "check" :) return 
+                                (: https://icons.getbootstrap.com/icons/check/ :)
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="{$color}" class="bi bi-check" viewBox="0 0 16 16">
+                                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                                </svg>
                 else
-                    $field
+                    ()
+            default return
+(:                if ($field instance of array(*)) then:)
+(:                    if (array:size($field) gt 1) then:)
+(:                        element ul {:)
+(:                            $field?* ! element li { . } :)
+(:                        }:)
+(:                    else:)
+(:                        $field?*:)
+                (: "Position Length" : { "specialValue" : "NaN" } :)
+(:                else if ($field instance of map(*)) then:)
+(:                    $field?*:)
+(:                else:)
+                    "DEFAULT: " || serialize($field, map { "method": "adaptive" })
 };
 
 declare function bases:view($request as map(*)) {
