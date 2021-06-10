@@ -61,99 +61,9 @@
                 }
             }
         },
-        "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}": {
-            "get": {
-                "summary": "View a base",
-                "operationId": "bases:view",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "snapshot-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "table-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the info about the base!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}/records/{record-id}": {
-            "get": {
-                "summary": "View a base",
-                "operationId": "bases:view",
-                "parameters": [
-                	{
-                        "name": "base-url",
-                        "in": "query",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "base-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "snapshot-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "table-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "record-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "... the info about the base!",
-                        "content": {
-                            "text/html": {
-                                "schema": { "type": "string" }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}/fields/{field-id}": {
             "get": {
-                "summary": "View a base",
+                "summary": "View a field",
                 "operationId": "bases:view",
                 "parameters": [
                 	{
@@ -185,6 +95,108 @@
                         "in": "path",
                         "required": true,
                         "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}/records/{record-id}": {
+            "get": {
+                "summary": "View a record",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "snapshot-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "table-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "record-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "... the info about the base!",
+                        "content": {
+                            "text/html": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}": {
+            "get": {
+                "summary": "View a table",
+                "operationId": "bases:view",
+                "parameters": [
+                	{
+                        "name": "base-url",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "base-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "snapshot-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "table-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
                     }
                 ],
                 "responses": {
@@ -201,7 +213,7 @@
         },
         "/bases/{base-id}/snapshots/{snapshot-id}": {
             "get": {
-                "summary": "View a base",
+                "summary": "View a snapshot",
                 "operationId": "bases:view",
                 "parameters": [
                 	{
@@ -240,7 +252,7 @@
                 "summary": "Take snapshot",
                 "operationId": "bases:create-snapshot",
                 "x-constraints": {
-                    "group": "airlock"
+                    "groups": [ "airlock" ]
                 },
                 "parameters": [
                 	{
@@ -273,7 +285,7 @@
                 "summary": "Post body as application/octet-stream",
                 "operationId": "bases:update-base-metadata",
                 "x-constraints": {
-                    "group": "airlock"
+                    "groups": [ "airlock" ]
                 },
                 "requestBody": {
                     "content": {
@@ -364,7 +376,7 @@
                 "description": "Add new Custom Report form",
                 "operationId": "bases:create-custom-report-form",
                 "x-constraints": {
-                    "group": "airlock"
+                    "groups": [ "airlock" ]
                 },
                 "parameters": [
                     {
@@ -763,7 +775,7 @@
                 "description": "Delete API key",
                 "operationId": "keys:delete-key-confirm",
                 "x-constraints": {
-                    "group": "airlock"
+                    "groups": [ "airlock" ]
                 },
                 "parameters": [
                     {
@@ -795,7 +807,7 @@
                 "description": "Delete API key",
                 "operationId": "keys:delete-key",
                 "x-constraints": {
-                    "group": "airlock"
+                    "groups": [ "airlock" ]
                 },
                 "parameters": [
                     {
@@ -829,7 +841,7 @@
                 "description": "Edit API key",
                 "operationId": "keys:edit-form",
                 "x-constraints": {
-                    "group": "airlock"
+                    "groups": [ "airlock" ]
                 },
                 "parameters": [
                     {
@@ -861,7 +873,7 @@
                 "description": "Edit API key",
                 "operationId": "keys:update-key",
                 "x-constraints": {
-                    "group": "airlock"
+                    "groups": [ "airlock" ]
                 },
                 "parameters": [
                     {
@@ -938,7 +950,7 @@
                 "description": "Manage API Keys",
                 "operationId": "keys:welcome",
                 "x-constraints": {
-                    "group": "airlock"
+                    "groups": [ "airlock" ]
                 },
                 "parameters": [
                     {
