@@ -558,6 +558,7 @@ declare function bases:view($request as map(*)) {
     let $table-id := $request?parameters?table-id
     let $field-id := $request?parameters?field-id
     let $record-id := $request?parameters?record-id
+    let $format := $request?parameters?format
     let $bases := doc("/db/apps/airlock-data/bases/bases.xml")//base
     let $base := $bases[id eq $base-id]
     let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
@@ -583,6 +584,18 @@ declare function bases:view($request as map(*)) {
         else 
             $primary-column-name
     let $record-primary-field := $fields?($adjusted-primary-column-name)
+    return
+        if ($format eq "json") then
+            element pre {
+                if (exists($record)) then
+                    $record => serialize(map{"method": "json", "indent": true()})
+                else if (exists($column)) then
+                    $column => serialize(map{"method": "json", "indent": true()})
+                else
+                    "to be implemented"
+            }
+        else 
+            
     let $item :=
         if (empty($base-id)) then
             <div>
@@ -699,54 +712,93 @@ declare function bases:view($request as map(*)) {
             let $created-dateTime := $base/created-dateTime cast as xs:dateTime
             let $last-snapshot := $snapshots[last()]/created-dateTime[. ne ""] ! (. cast as xs:dateTime)
             return
-                <div>
-                    <h2>{$base-name}</h2>
-                    <dl>
-                        <dt>Base ID</dt>
-                        <dd>{$base-id}</dd>
-                    </dl>
-                    <dl>
-                        <dt>Status of <code>base-metadata.json</code> file</dt>
-                        <dd>{
+                element div {
+                    element h2 { $base-name },
+                    element dl {
+                        element dt { "Base ID" },
+                        element dd { $base-id },
+                        element dt { "Status of ", element code { "base-metadata.json"} , " file"},
+                        element dd {
                             if (util:binary-doc-available("/db/apps/airlock-data/bases/" || $base-id || "/base-metadata.json")) then
                                 "Last updated: " || xmldb:last-modified("/db/apps/airlock-data/bases/" || $base-id, "base-metadata.json") => format-dateTime("[MNn] [D], [Y] at [h]:[m01] [PN]")
                             else
                                 "not yet uploaded"
-                        }</dd>
-                    </dl>
-                    <ul>
-                        {
+                        }
+                    },
+                    element ul {
                         if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then
                             (
-                            if (util:binary-doc-available("/db/apps/airlock-data/bases/" || $base-id || "/base-metadata.json")) then
-                                <li><a href="{$base-url}/bases/{$base-id}/snapshot">Take a new snapshot</a> (Note: This may take several minutes, depending on the size of the base.)</li>
-                            else
-                                (),
-                            <li>Upload a new <code>base-metadata.json</code> file 
-                                <ol>
-                                    <li>Go to <a href="https://airtable.com/{$base-id}/api/docs">this base’s API documentation</a>.</li>
-                                    <li>Use the <a href="https://chrome.google.com/webstore/detail/airtable-schema-extractor/cgcjgclmbhcibagnfhjlkigjjokeffia">Airtable Schema Extractor</a> (requires Google Chrome) to copy the complete JSON file and save it as a <code>.json</code> file on your computer.</li>
-                                    <li>
-                                        <form method="POST" action="{$base-url}/bases/{$base-id}/base-metadata" enctype="multipart/form-data">
-                                            <label for="upload-base-metadata">Upload the file:</label>
-                                            <br/> 
-                                            <input type="file" id="upload-base-metadata" name="files[]" accept="application/json"/> 
-                                            <button class="button btn-secondary">Submit</button>
-                                        </form>
-                                    </li>
-                                </ol>
-                            </li>
+                                if (util:binary-doc-available("/db/apps/airlock-data/bases/" || $base-id || "/base-metadata.json")) then
+                                    element li {
+                                        element a {
+                                            attribute href { $base-url || "/bases/" || $base-id || "/snapshot" },
+                                            "Take a new snapshot"
+                                        },
+                                        " (Note: This may take several minutes, depending on the size of the base.)"
+                                    }
+                                else
+                                    (),
+                                element li {
+                                    "Upload a new ",
+                                    element code { "base-metadata.json" },
+                                    " file", 
+                                    element ol {
+                                        element li { 
+                                            "Go to ",
+                                            element a { 
+                                                attribute href { "https://airtable.com/" || $base-id || "/api/docs" },
+                                                "this base’s API documentation"
+                                            },
+                                            "."
+                                        },
+                                        element li {
+                                            "Use the ",
+                                            element a { 
+                                                attribute href { "https://chrome.google.com/webstore/detail/airtable-schema-extractor/cgcjgclmbhcibagnfhjlkigjjokeffia" },
+                                                "Airtable Schema Extractor"
+                                            },
+                                            " (requires Google Chrome) to copy the complete JSON file and save it as a ",
+                                            element code { ".json" },
+                                            " file on your computer."
+                                        },
+                                        element li {
+                                            element form {
+                                                attribute method { "POST" },
+                                                attribute action { $base-url || "/bases/" || $base-id || "/base-metadata" },
+                                                attribute enctype { "multipart/form-data" },
+                                                element label {
+                                                    attribute for { "upload-base-metadata" },
+                                                    "Upload the file:"
+                                                },
+                                                element br {},
+                                                element input {
+                                                    attribute type { "file" },
+                                                    attribute id { "upload-base-metadata" },
+                                                    attribute name { "files[]" },
+                                                    attribute accept { "application/json" },
+                                                    element button { 
+                                                        attribute class { "button btn-secondary" },
+                                                        "Submit"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             )
                         else
-                            () 
-                        }
-                        {
-                            for $report in $custom-reports
-                            return
-                                <li><a href="{$report/location}">{$report/label/string()}</a>: {$report/description/string()}</li>
-                        }
-                    </ul>
-                    {
+                            (),
+                        for $report in $custom-reports
+                        return
+                            element li { 
+                                element a { 
+                                    attribute href { $report/location },
+                                    $report/label/string()
+                                },
+                                ": ",
+                                $report/description/string()
+                            }
+                        },
                         if (exists($snapshots)) then
                             <table class="table table-bordered table-hover">
                                 <thead class="thead-light">
@@ -791,11 +843,18 @@ declare function bases:view($request as map(*)) {
                             ()
                         else
                             <p>No snapshots. Please <a href="{$base-url}">log in</a> to take a new snapshot.</p>
-                    }
-                </div>
+                }
         else if (exists($base-id) and exists($snapshot-id) and empty($table-id)) then
             element div {
-                element h2 { "Tables" },
+                element h2 { "Snapshot " || $snapshot-id },
+                element dl {
+                    attribute class { "row" },
+                    element dt { attribute class { "col-sm-2" }, "Snapshot Date" },
+                    element dd { attribute class { "col-sm-10" }, ($snapshot/created-dateTime cast as xs:dateTime) => format-dateTime("[MNn] [D], [Y] [h]:[m01] [PN]") },
+                    element dt { attribute class { "col-sm-2" }, "Number of Tables" },
+                    element dd { attribute class { "col-sm-10" }, count($tables) }
+                },
+                element h3 { "Tables" },
                 element ul {
                     for $table in $tables
                     let $table-id := $table?id
@@ -812,7 +871,17 @@ declare function bases:view($request as map(*)) {
         }
         else if (exists($base-id) and exists($snapshot-id) and exists($table-id) and (empty($record-id) and empty($field-id))) then
             element div {
-                element h2 { "Fields" },
+                element h2 { $table?name },
+                element dl {
+                    attribute class { "row" },
+                    element dt { attribute class { "col-sm-2" }, "Table ID" },
+                    element dd { attribute class { "col-sm-10" }, $table-id },
+                    element dt { attribute class { "col-sm-2" }, "Number of Fields" },
+                    element dd { attribute class { "col-sm-10" }, count($columns) },
+                    element dt { attribute class { "col-sm-2" }, "Number of Records" },
+                    element dd { attribute class { "col-sm-10" }, count($table?records?*) }
+                },
+                element h3 { "Fields" },
                 element ul {
                     for $column in $columns
                     let $column-id := $column?id
@@ -825,7 +894,7 @@ declare function bases:view($request as map(*)) {
                             }
                         }
                 },
-                element h2 { "Records" },
+                element h3 { "Records" },
                 element ul {
                     let $primary-column-name := $table?primaryColumnName
                     let $adjusted-primary-column-name := 
@@ -852,118 +921,276 @@ declare function bases:view($request as map(*)) {
                 }
             }
         else if (exists($base-id) and exists($snapshot-id) and exists($table-id) and exists($field-id)) then
-            element dl {
-                element dt { "id" },
-                element dd { $field-id },
-                element dt { "name" },
-                element dd { $column?name },
-                element dt { "type" },
-                element dd { $column?type },
-                if (map:contains($column, "typeOptions")) then
-                    (
-                        element dt { "typeOptions" },
-                        element dd {
-                            let $entries := $column?typeOptions
-                            let $choices := $entries?choices?*
-                            let $choice-order := $entries?choiceOrder
-                            let $foreign-table-id := $entries?foreignTableId
-                            let $foreign-table := $tables[?id eq $foreign-table-id]
-                            let $symmetric-column-id := $entries?symmetricColumnId
-                            let $symmetric-column := $foreign-table?columns?*[?id eq $symmetric-column-id]
-                            let $relation-column-id := $entries?relationColumnId
-                            let $relation-column := $table?columns?*[?id eq $relation-column-id]
-    (:                                "foreignTableRollupColumnId":)
-                            return
-                                if (exists($choices) and exists($choice-order)) then
-                                    element dl {
-                                        element dt { "choices" },
-                                        element dd {
-                                            let $ordered-choices := sort($choices, (), function($choice) { index-of($choice-order, $choice?id) })
-                                            return
-                                                element ol { 
-                                                    for $choice in $ordered-choices
-                                                    let $color := $choice?color
-                                                    return
-                                                        element li {
-                                                            element span {
-                                                                attribute class { "badge rounded-pill " || $bases:color-to-css-class?($color) },
-                                                                $choice?name
-                                                            } 
-                                                        }
-                                                }
-                                        }
-                                    }
-                                else
-                                    for $key in ($entries ! map:keys(.)[not(. = ("choices", "choice-order"))]) (: except ($choices, $choice-order) :)
-                                    let $entry := $entries($key)
+            element div {
+                element h2 { $column?name },
+                element dl {
+                    attribute class { "row" },
+                    element dt { attribute class { "col-sm-2" }, "Field ID" },
+                    element dd { attribute class { "col-sm-10" }, $field-id },
+                    element dt { attribute class { "col-sm-2" }, "Field Type" },
+                    element dd { attribute class { "col-sm-10" }, $column?type },
+                    if (map:contains($column, "typeOptions")) then
+                        if (count($column?typeOptions?*) gt 0) then
+                            (
+                                element dt { attribute class { "col-sm-2" }, "typeOptions" },
+                                element dd {
+                                    attribute class { "col-sm-10" }, 
+                                    let $type-options := $column?typeOptions
+                                    let $choices := $type-options?choices?*
+                                    let $choice-order := $type-options?choiceOrder
+                                    let $foreign-table-id := $type-options?foreignTableId
+                                    let $foreign-table := $tables[?id eq $foreign-table-id]
+                                    let $symmetric-column-id := $type-options?symmetricColumnId
+                                    let $symmetric-column := $foreign-table?columns?*[?id eq $symmetric-column-id]
+                                    let $relation-column-id := $type-options?relationColumnId
+                                    let $relation-column := $table?columns?*[?id eq $relation-column-id]
+                                    let $foreign-table-rollup-column-id := $type-options?foreignTableRollupColumnId
+                                    let $foreign-table-for-rollup-column := $tables[?id eq $relation-column?foreignTableId]
+                                    let $foreign-table-rollup-column := $foreign-table-for-rollup-column?columns?*[?id eq $foreign-table-rollup-column-id]
                                     return
-                                        element dl {
-                                            element dt { $key },
-                                            element dd { 
-                                                switch ($key)
-                                                    case "foreignTableId" return
-                                                        element a {
-                                                            attribute href {
-                                                                $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-id
-                                                            },
-                                                            $foreign-table?name
-                                                        }
-                                                    case "symmetricColumnId" return
-                                                        element a {
-                                                            attribute href {
-                                                                $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-id || "/fields/" || $symmetric-column-id
-                                                            },
-                                                            $symmetric-column?name
-                                                        }
-                                                    case "relationColumnId" return
-                                                        element a {
-                                                            attribute href {
-                                                                $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $relation-column-id
-                                                            },
-                                                            $relation-column?name
-                                                        }
-                                                    case "dependencies" return
-                                                        element ol {
-                                                            for $referenced-column-id in $entry/?referencedColumnIdsForValue?*
-                                                            let $referenced-column := $table?columns?*[?id eq $referenced-column-id]
+                                        if (exists($choices) and exists($choice-order)) then
+                                            element dl {
+                                                attribute class { "row" },
+                                                element dt { attribute class { "col-sm-2" }, "choices" },
+                                                element dd {
+                                                    attribute class { "col-sm-10" }, 
+                                                    let $ordered-choices := sort($choices, (), function($choice) { index-of($choice-order, $choice?id) })
+                                                    return
+                                                        element ol { 
+                                                            for $choice in $ordered-choices
+                                                            let $color := $choice?color
                                                             return
-                                                                element li { 
-                                                                    element a {
-                                                                        attribute href {
-                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $referenced-column-id
-                                                                        },
-                                                                        $referenced-column?name
-                                                        }
+                                                                element li {
+                                                                    element span {
+                                                                        attribute class { "badge rounded-pill " || $bases:color-to-css-class?($color) },
+                                                                        $choice?name
+                                                                    } 
                                                                 }
                                                         }
-                                                    (: TODO parse field references :)
-                                                    case "formulaTextParsed" return
-                                                        element code { $entry } 
-                                                    default return
-                                                        $entry
+                                                }
                                             }
-                                        }
-                        }
-                    )
-                else
-                    ()
+                                        else
+                                            element dl {
+                                                attribute class { "row" },
+                                                for $type-option-key in ($type-options ! map:keys(.)[not(. = ("choices", "choice-order"))]) (: except ($choices, $choice-order) :)
+                                                let $type-option-value := $type-options($type-option-key)
+                                                let $dt-dd-pair :=
+                                                    (
+                                                        element dt { attribute class { "col-sm-2" }, $type-option-key },
+                                                        element dd { attribute class { "col-sm-10" }, 
+                                                            switch ($type-option-key)
+                                                                case "foreignTableRollupColumnId" return
+                                                                    element a {
+                                                                        attribute href {
+                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-for-rollup-column?id
+                                                                        },
+                                                                        $foreign-table-rollup-column?name
+                                                                    }
+                                                                case "foreignTableId" return
+                                                                    element a {
+                                                                        attribute href {
+                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-id
+                                                                        },
+                                                                        $foreign-table?name
+                                                                    }
+                                                                case "symmetricColumnId" return
+                                                                    element a {
+                                                                        attribute href {
+                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-id || "/fields/" || $symmetric-column-id
+                                                                        },
+                                                                        $symmetric-column?name
+                                                                    }
+                                                                case "relationColumnId" return
+                                                                    element a {
+                                                                        attribute href {
+                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $relation-column-id
+                                                                        },
+                                                                        $relation-column?name
+                                                                    }
+                                                                case "dependencies" return
+                                                                    (: TODO: confirm there's no need to display dependencies since they're always a duplicate of data in other entries :)
+                                                                    ()
+                                                                    (:
+                                                                    element ol {
+                                                                        for $referenced-column-id in $type-option-value?referencedColumnIdsForValue?*
+                                                                        let $referenced-column := $table?columns?*[?id eq $referenced-column-id]
+                                                                        return
+                                                                            element li { 
+                                                                                element a {
+                                                                                    attribute href {
+                                                                                        $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $referenced-column-id
+                                                                                    },
+                                                                                    $referenced-column?name || " (" || $referenced-column-id || ")"
+                                                                                }
+                                                                            }
+                                                                    }
+                                                                    :)
+                                                                (: TODO make field references into links - switch from replace to analyze-string :)
+                                                                case "formulaTextParsed" return
+                                                                    element code { element pre { 
+                                                                        (: rollups sometimes contain dependencies?referencedColumnIdsForValue that have nothing to do with formulaTextParsed :)
+                                                                        if (contains($type-options?formulaTextParsed, "column_value_") or contains($type-options?formulaTextParsed, "column_modified_time_")) then
+                                                                            fold-left(
+                                                                                $type-options?dependencies?referencedColumnIdsForValue?*,
+                                                                                $type-options?formulaTextParsed,
+                                                                                function ($text, $id) {
+                                                                                    replace(
+                                                                                        $text,
+                                                                                        "column_value_" || $id,
+                                                                                        $columns[?id eq $id]?name
+                                                                                    )
+                                                                                }
+                                                                            )
+                                                                            => 
+                                                                                (
+                                                                                    function($processed-text) { 
+                                                                                        fold-left(
+                                                                                            $type-options?dependencies?referencedColumnIdsForModification?*,
+                                                                                            $processed-text,
+                                                                                            function ($text, $id) {
+                                                                                                replace(
+                                                                                                    $text,
+                                                                                                    "column_modified_time_" || $id,
+                                                                                                    $columns[?id eq $id]?name
+                                                                                                )
+                                                                                            }
+                                                                                        )
+                                                                                    }
+                                                                                )()
+                                                                        else
+                                                                            $type-options?formulaTextParsed
+                                                                    } }
+                                                                case "actionType" 
+                                                                case "color" 
+                                                                case "computationType"
+                                                                case "dateFormat" 
+                                                                case "displayType"
+                                                                case "durationFormat"
+                                                                case "format"
+                                                                case "icon" 
+                                                                case "isDateTime"
+                                                                case "max" 
+                                                                case "maxUsedAutoNumber"
+                                                                case "negative"
+                                                                case "precision"
+                                                                case "relationship"
+                                                                case "resultType" 
+                                                                case "shouldNotify"
+                                                                case "symbol"
+                                                                case "timeFormat"
+                                                                case "timeZone"
+                                                                case "unreversed"
+                                                                case "validatorName"
+                                                                return
+                                                                    $type-option-value
+                                                                
+                                                                (: TODO computationParams below can reference columnIds, which should be parsed/linked:)
+                                                                case "label" 
+                                                                case "variant" 
+                                                                case "computationParams" return
+                                                                    element dl {
+                                                                        attribute class { "row" },
+                                                                        for $k in map:keys($type-option-value)
+                                                                        let $e := $type-option-value?($k)
+                                                                        let $dt-dd-pair :=
+                                                                            (
+                                                                                element dt { 
+                                                                                    attribute class { "col-sm-2" },
+                                                                                    $k
+                                                                                },
+                                                                                element dd { 
+                                                                                    attribute class { "col-sm-10" },
+                                                                                    if ($e instance of array(*)) then
+                                                                                        if ($k eq "columnIds" and count($e?*) ge 1) then
+                                                                                            let $column := $columns[?id = $e?*]
+                                                                                            return
+                                                                                                element a { 
+                                                                                                    attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/" || $table-id || "/fields/" || $column?id }, 
+                                                                                                    $column?name 
+                                                                                                }
+                                                                                        else
+                                                                                            serialize($e, map { "method": "adaptive" })
+                                                                                    else
+                                                                                        $e
+                                                                                }
+                                                                            )
+                                                                        where ($dt-dd-pair[2] => string-join() => string-length()) gt 0
+                                                                        return 
+                                                                            $dt-dd-pair
+                                                                    } 
+                                                                    
+                                                                default return
+                                                                    "UNKNOWN TYPE OPTION: " || $type-option-value => serialize(map { "method": "adaptive" } )
+                                                        }
+                                                    )
+                                                (: filter out empty entries, such as "dependencies": { "referencedColumnIdsForValue": [] } :)
+                                                where ($dt-dd-pair[2] => string-join() => string-length()) gt 0
+                                                return
+                                                    $dt-dd-pair
+                                            }
+                                }
+                            )
+                        else
+                            ()
+                    else
+                        ()
+                },
+                element pre {
+                    $column => serialize( map{ "method": "json", "indent": true() } )
+                },
+                element a {
+                    attribute href { "./" || $field-id || "?format=json" },
+                    "View raw JSON"
+                }
             }
         else if (exists($base-id) and exists($snapshot-id) and exists($table-id) and exists($record-id)) then
-            element dl {
-                element dt { "id" },
-                element dd { $record-id },
-                for $field-key in ($adjusted-primary-column-name, map:keys($fields)[. ne $adjusted-primary-column-name])
-                let $column-id := $columns[?name eq $field-key]?id
-                return
-                    (
-                        element dt { 
-                            element a {
-                                attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $column-id },
-                                $field-key
+            element div { 
+                element h2 { $render-function($adjusted-primary-column-name) },
+                element dl { 
+                    attribute class { "row" },
+                    element dt { attribute class { "col-sm-2" }, "Record ID" },
+                    element dd { attribute class { "col-sm-10" }, $record-id }
+                },
+                element table {
+                    attribute class { "table table-bordered" },
+                    element thead { 
+                        element tr { 
+                            element th { "Field name" },
+                            element th { "Value" }
+                        }
+                    },
+                    element tbody {
+                        for $field-key in ($adjusted-primary-column-name, map:keys($fields)[. ne $adjusted-primary-column-name])
+                        let $column-id := $columns[?name eq $field-key]?id
+                        return
+                            element tr {
+                                element th { attribute class { "col-sm-2" }, 
+                                    element a {
+                                        attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $column-id[1] },
+                                        $field-key
+                                    }
+                                },
+                                element td { attribute class { "col-sm-10" }, 
+        (:                            $render-function($field-key):)
+                                    try { 
+                                        let $rendered-field := $render-function($field-key)
+                                        return
+                                            if ($rendered-field instance of map(*) or $rendered-field instance of array(*)) then
+                                                "MAP OR ARRAY!!! " || $rendered-field => serialize(map { "method": "adaptive" }) 
+                                            else
+                                                $rendered-field
+                                    } catch * { "error rendering: table-id: " || $table-id || " record-id: " || $record-id || " error: " || $err:description } 
+                                }
                             }
-                        },
-                        element dd { $render-function($field-key) }
-                    )
+                    }
+                },
+                element pre {
+                    $record => serialize( map{ "method": "json", "indent": true() } )
+                },
+                element a {
+                    attribute href { "./" || $record-id || "?format=json" },
+                    "View raw JSON"
+                }
             }
         else
             ()
@@ -980,15 +1207,15 @@ declare function bases:view($request as map(*)) {
             else 
                 (),
             if ($table-id) then 
-                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}">“{$table-name}” Table</a>
+                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}">Table “{$table-name}”</a>
             else 
                 (),
             if ($field-id) then 
-                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}/fields/{$field-id}">“{$column-name}” Field</a>
+                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}/fields/{$field-id}">Field “{$column-name}”</a>
             else 
                 (),
             if ($record-id) then 
-                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}/records/{$record-id}">“{$record-primary-field}” Record</a>
+                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}/records/{$record-id}">Record “{$record-primary-field}”</a>
             else 
                 ()
         )
