@@ -48,6 +48,7 @@ declare variable $config:keys-col := $config:app-data-col || "/" || $config:keys
 
 declare variable $config:bases-doc-name := "bases.xml";
 declare variable $config:keys-doc-name := "keys.xml";
+declare variable $config:snapshots-doc-name := "snapshots.xml";
 declare variable $config:base-metadata-doc-name := "base-metadata.json";
 
 declare variable $config:bases-doc := $config:bases-col || "/" || $config:bases-doc-name;
