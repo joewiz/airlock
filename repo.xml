@@ -13,6 +13,13 @@
     <finish>post-install.xq</finish>
     <permissions user="airlock" password="airlock" group="airlock" mode="rwxrwxr-x"/>
     <changelog>
+        <change version="2.1.0">
+            <ul xmlns="http://www.w3.org/1999/xhtml">
+                <li>New: Rendering of all Airtable field types</li>
+                <li>New: An Airlock library module for accessing Airlock data outside the application</li>
+                <li>New: An option for viewing record raw JSON</li>
+            </ul>
+        </change>
         <change version="2.0.2">
             <ul xmlns="http://www.w3.org/1999/xhtml">
                 <li>Fixed: Log in issue</li>

@@ -28,7 +28,7 @@ This package is published to [the eXist-db public repository](https://exist-db.o
 
 > Or, if you prefer to download the package from GitHub Releases, follow these directions:
 > 
-> 1.  Download the `airlock-2.0.2.xar` file from GitHub [Releases](https://github.com/joewiz/airlock/releases) page.
+> 1.  Download the `airlock-2.1.0.xar` file from GitHub [Releases](https://github.com/joewiz/airlock/releases) page.
 > 
 > 2.  Open [Dashboard](http://localhost:8080/exist/apps/dashboard/index.html) as described above, click on the `Upload` button in the upper left corner, and select the `.xar` file you just downloaded. (For a full offline installation, you will need to download the latest `.xar` release of: [airtable.xq](https://github.com/joewiz/airtable.xq), [Roaster](https://github.com/eeditiones/roaster), and [exist-markdown](https://github.com/eXist-db/exist-markdown) too.)
 
