@@ -1,0 +1,10 @@
+# Airlock TODO
+
+- [ ] test all known Airtable field types
+- [ ] download snapshot as zip
+- [ ] backup just one base or entire airlock-data collection
+- [ ] fix wrong password error (i.e., username "a", blank password)
+- [ ] fix logout (link from homepage doesn't actually log you out)
+- [ ] move forms from list views to standalone pages
+- [ ] deduplicate all of the page wrappers & breadcrumbs (use templating?)
+- [ ] add spinner when "take new snapshot" is running

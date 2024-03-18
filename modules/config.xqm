@@ -37,22 +37,22 @@ declare variable $config:app-root :=
 declare variable $config:app-data-parent-col := "/db/apps";
 declare variable $config:app-data-col-name := "airlock-data";
 declare variable $config:bases-col-name := "bases";
-declare variable $config:keys-col-name := "keys";
+declare variable $config:tokens-col-name := "tokens";
 declare variable $config:snapshots-col-name := "snapshots";
 declare variable $config:tables-json-col-name := "tables-json";
 declare variable $config:tables-xml-col-name := "tables-xml";
 
 declare variable $config:app-data-col := $config:app-data-parent-col || "/" || $config:app-data-col-name;
 declare variable $config:bases-col := $config:app-data-col || "/" || $config:bases-col-name;
-declare variable $config:keys-col := $config:app-data-col || "/" || $config:keys-col-name;
+declare variable $config:tokens-col := $config:app-data-col || "/" || $config:tokens-col-name;
 
 declare variable $config:bases-doc-name := "bases.xml";
-declare variable $config:keys-doc-name := "keys.xml";
+declare variable $config:tokens-doc-name := "tokens.xml";
 declare variable $config:snapshots-doc-name := "snapshots.xml";
-declare variable $config:base-metadata-doc-name := "base-metadata.json";
+declare variable $config:base-schema-doc-name := "base-schema.json";
 
 declare variable $config:bases-doc := $config:bases-col || "/" || $config:bases-doc-name;
-declare variable $config:keys-doc := $config:keys-col || "/" || $config:keys-doc-name;
+declare variable $config:tokens-doc := $config:tokens-col || "/" || $config:tokens-doc-name;
 
 (:~
  : Returns the repo.xml descriptor for the current application.

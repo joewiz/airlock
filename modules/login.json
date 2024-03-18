@@ -27,8 +27,8 @@
     "paths": {
         "/login": {
             "get": {
-                "summary": "Edit API key",
-                "description": "Edit API key",
+                "summary": "Log in",
+                "description": "View the log in form",
                 "operationId": "app:login-form",
                 "parameters": [
                     {

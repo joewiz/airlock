@@ -8,11 +8,6 @@ import module namespace config="http://joewiz.org/ns/xquery/airlock/config" at "
 import module namespace airtable="http://joewiz.org/ns/xquery/airtable";
 import module namespace markdown="http://exist-db.org/xquery/markdown";
 
-declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
-
-declare option output:method "html";
-declare option output:media-type "text/html";
-
 (: 
  : TODO
  : - implement remaining data types in bases:render-field
@@ -126,7 +121,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
     let $columns := $table?columns
     let $column := $columns?*[?name eq $field-key]
     let $type := $column?type
-    let $type-options := $column?typeOptions
+    let $options := $column?options
     return
         switch ($type)
             (: TODO: Create additional test fields for
@@ -150,7 +145,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                     $field
                 }
             case "text" return
-                switch ($type-options?validatorName)
+                switch ($options?validatorName)
                     case "url" return
                         element a {
                             attribute href { $field },
@@ -201,7 +196,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                             }
             case "select" return
                 let $value := $field
-                let $choices := $type-options?choices
+                let $choices := $options?choices
                 let $color := $choices?*[?name eq $value]?color
                 return
                     element span {
@@ -210,11 +205,11 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                     }
             case "multiSelect" return
                 let $values := $field?*
-                let $choices := $type-options?choices
+                let $choices := $options?choices
                 return
                     if (count($values) gt 1) then
                         element ol {
-                            let $ordered-values := sort($values, (), function($value) { index-of($type-options?choiceOrder?*, $value) })
+                            let $ordered-values := sort($values, (), function($value) { index-of($options?choiceOrder?*, $value) })
                             for $value in $ordered-values
                             let $color := $choices?*[?name eq $value]?color
                             return
@@ -262,7 +257,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
             case "formula" 
             case "lookup"
             case "rollup" return
-                switch ($type-options?resultType) 
+                switch ($options?resultType) 
                     case "text" return 
                         if ($field instance of array(*)) then
                             $field?*
@@ -280,15 +275,15 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                                 return
                                     element li { $value }
                             }
-                        else if ($type-options?format eq "percentV2") then
-                            format-number($field, "0." || string-join((1 to $type-options?precision cast as xs:integer) ! "0") || "%")
+                        else if ($options?format eq "percentV2") then
+                            format-number($field, "0." || string-join((1 to $options?precision cast as xs:integer) ! "0") || "%")
                         else 
                             $field
                     case "date" return 
-                        if ($type-options?isDateTime) then
+                        if ($options?isDateTime) then
                             let $dateTime := $field cast as xs:dateTime
                             let $date-format :=
-                                switch ($type-options?dateFormat)
+                                switch ($options?dateFormat)
                                     case "Local" return
                                         "[M]/[D]/[Y]"
                                     case "Friendly" return
@@ -302,9 +297,9 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                                     default return
                                         "UNKNOWN"
                             let $time-format := 
-                                if ($type-options?timeFormat eq "24hour") then
+                                if ($options?timeFormat eq "24hour") then
                                     "[H01]:[m01]"
-                                else (: if ($type-options?timeFormat eq "12hour") then :)
+                                else (: if ($options?timeFormat eq "12hour") then :)
                                     "[h]:[m01][Pn]"
                             let $format := $date-format || " " || $time-format
                             return
@@ -315,7 +310,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                         else
                             let $date := $field cast as xs:date
                             let $format :=
-                                switch ($type-options?dateFormat)
+                                switch ($options?dateFormat)
                                     case "Local" return
                                         "[M]/[D]/[Y]"
                                     case "Friendly" return
@@ -369,10 +364,10 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                         "UNIMPLEMENTED " || upper-case($type) || " FORMAT: " || $field
             (: TODO handle timeZone: client vs. UTC - but no apparent difference in Airtable UI? :)
             case "date" return
-                if ($type-options?isDateTime) then
+                if ($options?isDateTime) then
                     let $dateTime := $field cast as xs:dateTime
                     let $date-format :=
-                        switch ($type-options?dateFormat)
+                        switch ($options?dateFormat)
                             case "Local" return
                                 "[M]/[D]/[Y]"
                             case "Friendly" return
@@ -386,9 +381,9 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                             default return
                                 "UNKNOWN"
                     let $time-format := 
-                        if ($type-options?timeFormat eq "24hour") then
+                        if ($options?timeFormat eq "24hour") then
                             "[H01]:[m01]"
-                        else (: if ($type-options?timeFormat eq "12hour") then :)
+                        else (: if ($options?timeFormat eq "12hour") then :)
                             "[h]:[m01][Pn]"
                     let $format := $date-format || " " || $time-format
                     return
@@ -399,7 +394,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                 else
                     let $date := $field cast as xs:date
                     let $format :=
-                        switch ($type-options?dateFormat)
+                        switch ($options?dateFormat)
                             case "Local" return
                                 "[M]/[D]/[Y]"
                             case "Friendly" return
@@ -423,22 +418,22 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
             case "autoNumber" return
                 $field
             case "number" return
-                switch ($type-options?format) 
+                switch ($options?format) 
                     case "decimal" return
-                        format-number($field, "0." || string-join((1 to $type-options?precision cast as xs:integer) ! "0"))
+                        format-number($field, "0." || string-join((1 to $options?precision cast as xs:integer) ! "0"))
                     case "integer" return
                         format-number($field, "0")
                     case "currency" return
-                        format-number($field, $type-options?symbol || "0." || string-join((1 to $type-options?precision cast as xs:integer) ! "0"))
+                        format-number($field, $options?symbol || "0." || string-join((1 to $options?precision cast as xs:integer) ! "0"))
                     case "percentV2" return
-                        format-number($field, "0." || string-join((1 to $type-options?precision cast as xs:integer) ! "0") || "%")
+                        format-number($field, "0." || string-join((1 to $options?precision cast as xs:integer) ! "0") || "%")
                     case "duration" return
                         let $duration := xs:duration("PT" || $field || "S")
                         let $hours := hours-from-duration($duration)
                         let $minutes := minutes-from-duration($duration) => format-number("00")
                         let $seconds := seconds-from-duration($duration)
                         return
-                            switch ($type-options?durationFormat)
+                            switch ($options?durationFormat)
                                 case "h:mm" return
                                     $hours || ":" || $minutes
                                 case "h:mm:ss" return
@@ -455,7 +450,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                         "UNSUPPORTED TYPE: " || $field
             case "collaborator" 
             case "multiCollaborator" return
-                let $computation-type := $type-options?computationType
+                let $computation-type := $options?computationType
                 let $values := if ($field instance of array(*)) then $field?* else $field
                 return
                     if (count($values) gt 1) then
@@ -484,7 +479,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                             )
             (: TODO "computation" can be used for createdBy, lastModifiedBy with various field options :)
             case "computation" return
-                switch ($type-options?resultType) 
+                switch ($options?resultType) 
                     case "collaborator" return
                         let $value := $field
                         return
@@ -500,7 +495,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                         $field
             case "checkbox" return
                 if ($field) then
-                    let $color := $type-options?color
+                    let $color := $options?color
                     return
                         (: TODO move these SVG definitions into global map variable, to facilitate reuse - between checkbox & rating
                             and test colors using pro/enterprise plan definitions:
@@ -508,7 +503,7 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                             color: "yellowBright" | "orangeBright" | "redBright" | "pinkBright" | "purpleBright" | "blueBright" | "cyanBright" | "tealBright" | "greenBright" | "grayBright",
                         
                         :)
-                        switch ($type-options?icon)
+                        switch ($options?icon)
                             case "star" return 
                                 (: https://icons.getbootstrap.com/icons/star-fill/ :) 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="{$color}" class="bi bi-star-fill" viewBox="0 0 16 16">
@@ -551,673 +546,801 @@ declare function bases:render-field($base-url, $base-id, $snapshot-id, $tables, 
                     "DEFAULT: " || serialize($field, map { "method": "adaptive" })
 };
 
-declare function bases:view($request as map(*)) {
+declare function bases:view-bases($request as map(*)) {
+    let $base-url := $request?parameters?base-url
+    let $base-id := $request?parameters?base-id
+    let $snapshot-id := $request?parameters?snapshot-id
+    let $format := $request?parameters?format
+    let $bases := doc("/db/apps/airlock-data/bases/bases.xml")//base
+    let $user-has-edit-permissions := sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group
+    let $item :=
+        <div>
+            <h2>Bases</h2>
+            {
+                if ($bases) then
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Base ID</th>
+                                <th>Notes</th>
+                                <th>Date Created</th>
+                                <th>Last Snapshot</th>
+                                {
+                                    if ($user-has-edit-permissions) then 
+                                        <th>Action</th>
+                                    else
+                                        ()
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>{
+                            for $base in $bases
+                            let $base-id := $base/id/string()
+                            let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
+                            let $base-name := $base/name/string()
+                            let $notes := $base/notes/string()
+                            let $access-token := $base/access-token/string()
+                            let $created-dateTime := $base/created-dateTime cast as xs:dateTime
+                            let $last-snapshot := $snapshots[last()]/created-dateTime[. ne ""] ! (. cast as xs:dateTime)
+                            order by $base-name
+                            return
+                                <tr>
+                                    <td><a href="{$base-url}/bases/{$base-id}">{$base-name}</a></td>
+                                    <td>{$base-id}</td>
+                                    <td>{$notes}</td>
+                                    <td>{format-dateTime($created-dateTime, "[MNn] [D], [Y] [h]:[m01] [PN]")}</td>
+                                    <td>{
+                                        if (exists($last-snapshot)) then 
+                                            format-dateTime($last-snapshot, "[MNn] [D], [Y] [h]:[m01] [PN]") 
+                                        else 
+                                            <em>No snapshots</em>
+                                    }</td>
+                                    {
+                                        if ($user-has-edit-permissions) then 
+                                            <td><a href="{$base-url}/bases/{$base-id}/edit">Edit</a></td>
+                                        else
+                                            ()
+                                    }
+                                </tr>
+                        }</tbody>
+                    </table>
+               else
+                   <p>No bases have been added.</p>
+            ,
+            if ($user-has-edit-permissions) then
+                if (empty(doc("/db/apps/airlock-data/tokens/tokens.xml")//token-set)) then
+                    <div>
+                        <h3>Add a base</h3>
+                        <p>To add a base, first <a href="{$base-url}/tokens">add your access token</a>.</p>
+                    </div>
+                else
+                   <div>
+                       <h3>Add a base</h3>
+                       <p>Use the Notes field as you wish.</p>
+                       <form method="POST" action="{$base-url}/bases">
+                           <div class="mb-3">
+                               <label for="base-id">Base ID:</label>
+                               <input type="text" id="base-id" name="base-id" class="form-control" required="required" autofocus="autofocus"/>
+                               <div class="form-text">To find your base's ID, see <a href="https://support.airtable.com/docs/finding-airtable-ids#finding-base-url-ids" target="_blank">Finding base URL IDs</a>.</div>
+                           </div>
+                           <div class="mb-3">
+                               <label for="base-name">Base name:</label>
+                               <input type="text" id="base-name" name="base-name" class="form-control" required="required"/>
+                           </div>
+                           <div class="mb-3">
+                               <label for="access-token">Access token:</label>
+                               <select class="form-select" aria-label="Select an access token" id="access-token" name="access-token">
+                                   <option selected="selected">Select an access token</option>
+                                   {
+                                       for $token-set at $n in doc("/db/apps/airlock-data/tokens/tokens.xml")//token-set
+                                       return
+                                           <option value="{$token-set/access-token}">{$token-set/access-token/string()} ({$token-set/username/string()}) ({$token-set/notes/string()})</option>
+                                   }
+                               </select>
+                           </div>
+                           <div class="mb-3">
+                               <label for="permission-level">Permission level:</label>
+                               <select class="form-select" aria-label="Select your permission level" id="permission-level" name="permission-level">
+                                   <option selected="selected">Select your permission level</option>
+                                   {
+                                       for $permission-level in ("read", "comment", "edit", "create")
+                                       return
+                                           <option value="{$permission-level}">{$permission-level}</option>
+                                   }
+                               </select>
+                           </div>
+                           <div class="mb-3">
+                               <label for="notes">Notes:</label>
+                               <textarea type="text" id="notes" name="notes" class="form-control" rows="3"/>
+                           </div>
+                           <button class="btn btn-secondary" type="reset">Clear</button>
+                           <button class="btn btn-primary" type="submit">Add Base</button>
+                       </form>
+                   </div>
+            else 
+                ()
+            }
+        </div>
+    let $breadcrumb-entries :=
+        (
+            <a href="{$base-url}">Home</a>,
+            <a href="{$base-url}/bases">Bases</a>
+        )
+    let $breadcrumbs-count := count($breadcrumb-entries)
+    let $breadcrumbs := 
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {
+                    for $entry at $n in $breadcrumb-entries
+                    return
+                        if ($n eq $breadcrumbs-count) then
+                            <li class="breadcrumb-item active" aria-current="page">{$entry/string()}</li>
+                        else
+                            <li class="breadcrumb-item">{$entry}</li>
+                }
+            </ol>
+        </nav>
+    let $title := "Airlock"
+    let $content :=
+        element div { 
+            element h1 { $title },
+            $breadcrumbs,
+            $item
+        }
+    return
+        app:wrap($content, $title)
+};
+
+declare function bases:view-base($request as map(*)) {
+    let $base-url := $request?parameters?base-url
+    let $base-id := $request?parameters?base-id
+    let $snapshot-id := $request?parameters?snapshot-id
+    let $format := $request?parameters?format
+    let $bases := doc("/db/apps/airlock-data/bases/bases.xml")//base
+    let $base := $bases[id eq $base-id]
+    let $base-name := $base/name/string()
+    let $created-dateTime := $base/created-dateTime cast as xs:dateTime
+    let $custom-reports := $base//custom-report
+    let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
+    let $last-snapshot := $snapshots[last()]/created-dateTime[. ne ""] ! (. cast as xs:dateTime)
+    let $user-has-edit-permissions := sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group
+    let $item := 
+        element div {
+            element h2 { $base-name },
+            element dl {
+                element dt { "Base ID" },
+                element dd { $base-id }
+            },
+            element ul {
+                if ($user-has-edit-permissions) then
+                    element li {
+                        element a {
+                            attribute href { $base-url || "/bases/" || $base-id || "/snapshot" },
+                            "Take a new snapshot"
+                        },
+                        " (Note: This may take several minutes, depending on the size of the base.)"
+                    }
+                else
+                    (),
+                for $report in $custom-reports
+                return
+                    element li { 
+                        element a { 
+                            attribute href { $report/location },
+                            $report/label/string()
+                        },
+                        ": ",
+                        $report/description/string()
+                    }
+                },
+                if (exists($snapshots)) then
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Snapshot</th>
+                                <th>Date Created</th>
+                                <th>Tables</th>
+                                <th>Records</th>
+                                <th>Fields</th>
+                                <th>Cells</th>
+                                {
+                                    if ($user-has-edit-permissions) then 
+                                        <th>Action</th>
+                                    else
+                                        ()
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>{
+                            for $snapshot in $snapshots
+                            let $snapshot-id := $snapshot/id/string()
+                            let $created-dateTime := $snapshot/created-dateTime cast as xs:dateTime
+                            order by $created-dateTime
+                            return
+                                <tr>
+                                    <td><a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}">{$snapshot-id}</a></td>
+                                    <td>{format-dateTime($created-dateTime, "[MNn] [D], [Y] [h]:[m01] [PN]")}</td>
+                                    <td>{$snapshot/tables-count/string()}</td>
+                                    <td>{$snapshot/records-count/string()}</td>
+                                    <td>{$snapshot/fields-count/string()}</td>
+                                    <td>{$snapshot/cells-count/string()}</td>
+                                    {
+                                        if ($user-has-edit-permissions) then 
+                                            <td><a href="{$base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/delete"}">Delete</a></td>
+                                        else
+                                            ()
+                                    }
+                                </tr>
+                        }</tbody>
+                    </table>
+                else if ($user-has-edit-permissions) then
+                    ()
+                else
+                    <p>No snapshots. Please <a href="{$base-url}">log in</a> to take a new snapshot.</p>
+        }
+    let $breadcrumb-entries :=
+        (
+            <a href="{$base-url}">Home</a>,
+            <a href="{$base-url}/bases">Bases</a>,
+            <a href="{$base-url}/bases/{$base-id}">{$base-name}</a>
+        )
+    let $breadcrumbs-count := count($breadcrumb-entries)
+    let $breadcrumbs := 
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {
+                    for $entry at $n in $breadcrumb-entries
+                    return
+                        if ($n eq $breadcrumbs-count) then
+                            <li class="breadcrumb-item active" aria-current="page">{$entry/string()}</li>
+                        else
+                            <li class="breadcrumb-item">{$entry}</li>
+                }
+            </ol>
+        </nav>
+    let $title := "Airlock"
+    let $content :=
+        element div { 
+            element h1 { $title },
+            $breadcrumbs,
+            $item
+        }
+    return
+        app:wrap($content, $title)
+    
+};
+
+declare function bases:view-snapshot($request as map(*)) {
+    let $base-url := $request?parameters?base-url
+    let $base-id := $request?parameters?base-id
+    let $snapshot-id := $request?parameters?snapshot-id
+    let $format := $request?parameters?format
+    let $bases := doc("/db/apps/airlock-data/bases/bases.xml")//base
+    let $base := $bases[id eq $base-id]
+    let $base-name := $base/name/string()
+    let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
+    let $snapshot := $snapshots[id eq $snapshot-id]
+    let $tables := 
+        xmldb:get-child-resources("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables") 
+        ! json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables/" || .) 
+    let $item := 
+        element div {
+            element h2 { "Snapshot " || $snapshot-id },
+            element dl {
+                attribute class { "row" },
+                element dt { attribute class { "col-sm-2" }, "Snapshot Date" },
+                element dd { attribute class { "col-sm-10" }, ($snapshot/created-dateTime cast as xs:dateTime) => format-dateTime("[MNn] [D], [Y] [h]:[m01] [PN]") },
+                element dt { attribute class { "col-sm-2" }, "Number of Tables" },
+                element dd { attribute class { "col-sm-10" }, count($tables) }
+            },
+            element h3 { "Tables" },
+            element ul {
+                for $table in $tables
+                let $table-id := $table?id
+                let $table-name := $table?name
+                order by $table-name
+                return
+                    element li {
+                        element a {
+                            attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id },
+                            $table-name
+                        }
+                    }
+            }
+        }
+    let $breadcrumb-entries :=
+        (
+            <a href="{$base-url}">Home</a>,
+            <a href="{$base-url}/bases">Bases</a>,
+            <a href="{$base-url}/bases/{$base-id}">{$base-name}</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}">Snapshot {$snapshot-id}</a>
+        )
+    let $breadcrumbs-count := count($breadcrumb-entries)
+    let $breadcrumbs := 
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {
+                    for $entry at $n in $breadcrumb-entries
+                    return
+                        if ($n eq $breadcrumbs-count) then
+                            <li class="breadcrumb-item active" aria-current="page">{$entry/string()}</li>
+                        else
+                            <li class="breadcrumb-item">{$entry}</li>
+                }
+            </ol>
+        </nav>
+    let $title := "Airlock"
+    let $content :=
+        element div { 
+            element h1 { $title },
+            $breadcrumbs,
+            $item
+        }
+    return
+        app:wrap($content, $title)
+};
+
+declare function bases:view-table($request as map(*)) {
+    let $base-url := $request?parameters?base-url
+    let $base-id := $request?parameters?base-id
+    let $snapshot-id := $request?parameters?snapshot-id
+    let $table-id := $request?parameters?table-id
+    let $format := $request?parameters?format
+    let $bases := doc("/db/apps/airlock-data/bases/bases.xml")//base
+    let $base := $bases[id eq $base-id]
+    let $base-name := $base/name/string()
+    let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
+    let $snapshot := $snapshots[id eq $snapshot-id]
+    let $tables := 
+        xmldb:get-child-resources("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables") 
+        ! json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables/" || .)
+    let $table := $tables[?id eq $table-id]
+    let $table-name := $table?name
+    let $primary-field-name := $table?fields?*[?id eq $table?primaryFieldId]?name
+    let $fields-schema := $table?fields?*
+    let $records := $table?records?*
+    let $item := 
+        element div {
+            element h2 { $table-name },
+            element dl {
+                attribute class { "row" },
+                element dt { attribute class { "col-sm-2" }, "Table ID" },
+                element dd { attribute class { "col-sm-10" }, $table-id },
+                element dt { attribute class { "col-sm-2" }, "Number of Fields" },
+                element dd { attribute class { "col-sm-10" }, count($fields-schema) },
+                element dt { attribute class { "col-sm-2" }, "Number of Records" },
+                element dd { attribute class { "col-sm-10" }, count($records) }
+            },
+            element h3 { "Fields" },
+            element ul {
+                for $field-schema in $fields-schema
+                let $field-id := $field-schema?id
+                let $field-name := $field-schema?name
+                return
+                    element li {
+                        element a {
+                            attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $field-id },
+                            $field-name
+                        }
+                    }
+            },
+            element h3 { "Records" },
+            element ul {
+                for $record in $records
+                let $record-id := $record?id
+                let $fields := $record?fields
+                let $record-name := ($fields?($primary-field-name), "[null]")[1]
+                order by $record-name collation "http://www.w3.org/2013/collation/UCA?numeric=yes"
+                return
+                    element li {
+                        element a {
+                            attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/records/" || $record-id },
+                            $record-name
+                        }
+                    }
+            },
+(:            element pre {
+                $table => serialize( map{ "method": "json", "indent": true() } )
+            },:)
+            element a {
+                attribute href { "./" || $table-id || "?format=json" },
+                "View raw JSON"
+            }
+        }
+    let $breadcrumb-entries :=
+        (
+            <a href="{$base-url}">Home</a>,
+            <a href="{$base-url}/bases">Bases</a>,
+            <a href="{$base-url}/bases/{$base-id}">{$base-name}</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}">Snapshot {$snapshot-id}</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}">Table “{$table-name}”</a>
+        )
+    let $breadcrumbs-count := count($breadcrumb-entries)
+    let $breadcrumbs := 
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {
+                    for $entry at $n in $breadcrumb-entries
+                    return
+                        if ($n eq $breadcrumbs-count) then
+                            <li class="breadcrumb-item active" aria-current="page">{$entry/string()}</li>
+                        else
+                            <li class="breadcrumb-item">{$entry}</li>
+                }
+            </ol>
+        </nav>
+    let $title := "Airlock"
+    let $content :=
+        element div { 
+            element h1 { $title },
+            $breadcrumbs,
+            $item
+        }
+    return
+        app:wrap($content, $title)
+};
+
+declare function bases:view-field($request as map(*)) {
     let $base-url := $request?parameters?base-url
     let $base-id := $request?parameters?base-id
     let $snapshot-id := $request?parameters?snapshot-id
     let $table-id := $request?parameters?table-id
     let $field-id := $request?parameters?field-id
-    let $record-id := $request?parameters?record-id
     let $format := $request?parameters?format
     let $bases := doc("/db/apps/airlock-data/bases/bases.xml")//base
     let $base := $bases[id eq $base-id]
+    let $base-name := $base/name/string()
     let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
     let $snapshot := $snapshots[id eq $snapshot-id]
-    let $tables := if ($base-id and $snapshot-id) then xmldb:get-child-resources("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables") ! json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables/" || .) else ()
+    let $tables := 
+        xmldb:get-child-resources("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables") 
+        ! json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables/" || .)
     let $table := $tables[?id eq $table-id]
-    let $columns := $table?columns?*
-    let $records := $table?records?*
-    let $column := $columns[?id eq $field-id]
-    let $record := $records[?id eq $record-id]
-    let $fields := $record?fields
-    let $render-function := function($field-key) { bases:render-field($base-url, $base-id, $snapshot-id, $tables, $table, $record, $field-key) }
-    let $base-name := $base/name/string()
-    let $api-key := $base/api-key/string()
-    let $custom-reports := $base//custom-report
-    let $snapshot-dateTime := $snapshot/created-dateTime => format-dateTime("[MNn] [D], [Y] at [h]:[m01] [PN]")
     let $table-name := $table?name
-    let $column-name := $column?name
-    let $primary-column-name := $table?primaryColumnName
-    let $adjusted-primary-column-name := 
-        if ($primary-column-name eq "id") then
-            "ID"
-        else 
-            $primary-column-name
-    let $record-primary-field := $fields?($adjusted-primary-column-name)
-    return
-        if ($format eq "json") then
-            element pre {
-                if (exists($record)) then
-                    $record => serialize(map{"method": "json", "indent": true()})
-                else if (exists($column)) then
-                    $column => serialize(map{"method": "json", "indent": true()})
-                else
-                    "to be implemented"
-            }
-        else 
-            
-    let $item :=
-        if (empty($base-id)) then
-            <div>
-                <h2>Bases</h2>
-                {
-                    if ($bases) then
-                        <table class="table table-bordered table-hover">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Base ID</th>
-                                    <th>Notes</th>
-                                    <th>Date Created</th>
-                                    <th>Last Snapshot</th>
-                                    {
-                                        if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then 
-                                            <th>Action</th>
-                                        else
-                                            ()
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody>{
-                                for $base in $bases
-                                let $base-id := $base/id/string()
-                                let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
-                                let $base-name := $base/name/string()
-                                let $notes := $base/notes/string()
-                                let $api-key := $base/api-key/string()
-                                let $created-dateTime := $base/created-dateTime cast as xs:dateTime
-                                let $last-snapshot := $snapshots[last()]/created-dateTime[. ne ""] ! (. cast as xs:dateTime)
-                                order by $base-name
+    let $primary-field-name := $table?fields?*[?id eq $table?primaryFieldId]?name
+    let $fields-schema := $table?fields?*
+    let $field-schema := $fields-schema[?id eq $field-id]
+    let $field-name := $field-schema?name
+    let $item := 
+        element div {
+            element h2 { $field-name },
+            element dl {
+                attribute class { "row" },
+                element dt { attribute class { "col-sm-2" }, "Field ID" },
+                element dd { attribute class { "col-sm-10" }, $field-id },
+                element dt { attribute class { "col-sm-2" }, "Field Type" },
+                element dd { attribute class { "col-sm-10" }, $field-schema?type },
+                if (map:contains($field-schema, "options")) then
+                    if (count($field-schema?options?*) gt 0) then
+                        (
+                            element dt { attribute class { "col-sm-2" }, "typeOptions" },
+                            element dd {
+                                attribute class { "col-sm-10" }, 
+                                let $options := $field-schema?options
+                                let $choices := $options?choices?*
+                                let $choice-order := $options?choiceOrder
+                                let $foreign-table-id := $options?foreignTableId
+                                let $foreign-table := $tables[?id eq $foreign-table-id]
+                                let $symmetric-column-id := $options?symmetricColumnId
+                                let $symmetric-column := $foreign-table?columns?*[?id eq $symmetric-column-id]
+                                let $relation-column-id := $options?relationColumnId
+                                let $relation-column := $table?columns?*[?id eq $relation-column-id]
+                                let $foreign-table-rollup-column-id := $options?foreignTableRollupColumnId
+                                let $foreign-table-for-rollup-column := $tables[?id eq $relation-column?foreignTableId]
+                                let $foreign-table-rollup-column := $foreign-table-for-rollup-column?columns?*[?id eq $foreign-table-rollup-column-id]
                                 return
-                                    <tr>
-                                        <td><a href="{$base-url}/bases/{$base-id}">{$base-name}</a></td>
-                                        <td>{$base-id}</td>
-                                        <td>{$notes}</td>
-                                        <td>{format-dateTime($created-dateTime, "[MNn] [D], [Y] [h]:[m01] [PN]")}</td>
-                                        <td>{
-                                            if (exists($last-snapshot)) then 
-                                                format-dateTime($last-snapshot, "[MNn] [D], [Y] [h]:[m01] [PN]") 
-                                            else 
-                                                <em>No snapshots</em>
-                                        }</td>
-                                        {
-                                            if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then 
-                                                <td><a href="{$base-url}/bases/{$base-id}/edit">Edit</a></td>
-                                            else
-                                                ()
-                                        }
-                                    </tr>
-                            }</tbody>
-                        </table>
-                   else
-                       <p>No bases have been added.</p>
-                ,
-                if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then
-                    if (empty(doc("/db/apps/airlock-data/keys/keys.xml")//key-set)) then
-                        <div>
-                            <h3>Add a base</h3>
-                            <p>To add a base, first <a href="{$base-url}/keys">add your API key</a>.</p>
-                        </div>
-                    else
-                       <div>
-                           <h3>Add a base</h3>
-                           <p> Use the Notes field as you wish.
-   
-   </p>
-                           <form method="POST" action="{$base-url}/bases">
-                               <div class="mb-3">
-                                   <label for="base-id">Base ID:</label>
-                                   <input type="text" id="base-id" name="base-id" class="form-control" required="required" autofocus="autofocus"/>
-                                   <div class="form-text">To find your base's ID, go to <a href="https://airtable.com/api" target="_blank">https://airtable.com/api</a> and select your base to view its API documentation. Copy the ID from the “Introduction.”</div>
-                               </div>
-                               <div class="mb-3">
-                                   <label for="base-name">Base name:</label>
-                                   <input type="text" id="base-name" name="base-name" class="form-control" required="required"/>
-                               </div>
-                               <div class="mb-3">
-                                   <label for="rest-api-key">REST API Key:</label>
-                                   <select class="form-select" aria-label="Select an API key" id="rest-api-key" name="rest-api-key">
-                                       <option selected="selected">Select an API key</option>
-                                       {
-                                           for $key-set at $n in doc("/db/apps/airlock-data/keys/keys.xml")//key-set
-                                           return
-                                               <option value="{$key-set/rest-api-key}">{$key-set/rest-api-key/string()} ({$key-set/username/string()})</option>
-                                       }
-                                   </select>
-                               </div>
-                               <div class="mb-3">
-                                   <label for="permission-level">Permission level:</label>
-                                   <select class="form-select" aria-label="Select your permission level" id="permission-level" name="permission-level">
-                                       <option selected="selected">Select your permission level</option>
-                                       {
-                                           for $permission-level in ("read", "comment", "edit", "create")
-                                           return
-                                               <option value="{$permission-level}">{$permission-level}</option>
-                                       }
-                                   </select>
-                               </div>
-                               <div class="mb-3">
-                                   <label for="notes">Notes:</label>
-                                   <textarea type="text" id="notes" name="notes" class="form-control" rows="3"/>
-                               </div>
-                               <button class="btn btn-secondary" type="reset">Clear</button>
-                               <button class="btn btn-primary" type="submit">Add Base</button>
-                           </form>
-                       </div>
-                else 
-                    ()
-                }
-            </div>
-        else if (exists($base-id) and empty($snapshot-id)) then
-            let $created-dateTime := $base/created-dateTime cast as xs:dateTime
-            let $last-snapshot := $snapshots[last()]/created-dateTime[. ne ""] ! (. cast as xs:dateTime)
-            return
-                element div {
-                    element h2 { $base-name },
-                    element dl {
-                        element dt { "Base ID" },
-                        element dd { $base-id },
-                        element dt { "Status of ", element code { "base-metadata.json"} , " file"},
-                        element dd {
-                            if (util:binary-doc-available("/db/apps/airlock-data/bases/" || $base-id || "/base-metadata.json")) then
-                                "Last updated: " || xmldb:last-modified("/db/apps/airlock-data/bases/" || $base-id, "base-metadata.json") => format-dateTime("[MNn] [D], [Y] at [h]:[m01] [PN]")
-                            else
-                                "not yet uploaded"
-                        }
-                    },
-                    element ul {
-                        if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then
-                            (
-                                if (util:binary-doc-available("/db/apps/airlock-data/bases/" || $base-id || "/base-metadata.json")) then
-                                    element li {
-                                        element a {
-                                            attribute href { $base-url || "/bases/" || $base-id || "/snapshot" },
-                                            "Take a new snapshot"
-                                        },
-                                        " (Note: This may take several minutes, depending on the size of the base.)"
-                                    }
-                                else
-                                    (),
-                                element li {
-                                    "Upload a new ",
-                                    element code { "base-metadata.json" },
-                                    " file", 
-                                    element ol {
-                                        element li { 
-                                            "Go to ",
-                                            element a { 
-                                                attribute href { "https://airtable.com/" || $base-id || "/api/docs" },
-                                                "this base’s API documentation"
-                                            },
-                                            "."
-                                        },
-                                        element li {
-                                            "Use the ",
-                                            element a { 
-                                                attribute href { "https://chrome.google.com/webstore/detail/airtable-schema-extractor/cgcjgclmbhcibagnfhjlkigjjokeffia" },
-                                                "Airtable Schema Extractor"
-                                            },
-                                            " (requires Google Chrome) to copy the complete JSON file and save it as a ",
-                                            element code { ".json" },
-                                            " file on your computer."
-                                        },
-                                        element li {
-                                            element form {
-                                                attribute method { "POST" },
-                                                attribute action { $base-url || "/bases/" || $base-id || "/base-metadata" },
-                                                attribute enctype { "multipart/form-data" },
-                                                element label {
-                                                    attribute for { "upload-base-metadata" },
-                                                    "Upload the file:"
-                                                },
-                                                element br {},
-                                                element input {
-                                                    attribute type { "file" },
-                                                    attribute id { "upload-base-metadata" },
-                                                    attribute name { "files[]" },
-                                                    attribute accept { "application/json" },
-                                                    element button { 
-                                                        attribute class { "button btn-secondary" },
-                                                        "Submit"
+                                    if (exists($choices) and exists($choice-order)) then
+                                        element dl {
+                                            attribute class { "row" },
+                                            element dt { attribute class { "col-sm-2" }, "choices" },
+                                            element dd {
+                                                attribute class { "col-sm-10" }, 
+                                                let $ordered-choices := sort($choices, (), function($choice) { index-of($choice-order, $choice?id) })
+                                                return
+                                                    element ol { 
+                                                        for $choice in $ordered-choices
+                                                        let $color := $choice?color
+                                                        return
+                                                            element li {
+                                                                element span {
+                                                                    attribute class { "badge rounded-pill " || $bases:color-to-css-class?($color) },
+                                                                    $choice?name
+                                                                } 
+                                                            }
                                                     }
-                                                }
                                             }
                                         }
-                                    }
-                                }
-                            )
-                        else
-                            (),
-                        for $report in $custom-reports
-                        return
-                            element li { 
-                                element a { 
-                                    attribute href { $report/location },
-                                    $report/label/string()
-                                },
-                                ": ",
-                                $report/description/string()
-                            }
-                        },
-                        if (exists($snapshots)) then
-                            <table class="table table-bordered table-hover">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Snapshot</th>
-                                        <th>Date Created</th>
-                                        <th>Tables</th>
-                                        <th>Records</th>
-                                        <th>Fields</th>
-                                        <th>Cells</th>
-                                        {
-                                            if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then 
-                                                <th>Action</th>
-                                            else
-                                                ()
-                                        }
-                                    </tr>
-                                </thead>
-                                <tbody>{
-                                    for $snapshot in $snapshots
-                                    let $snapshot-id := $snapshot/id/string()
-                                    let $created-dateTime := $snapshot/created-dateTime cast as xs:dateTime
-                                    order by $created-dateTime
-                                    return
-                                        <tr>
-                                            <td><a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}">{$snapshot-id}</a></td>
-                                            <td>{format-dateTime($created-dateTime, "[MNn] [D], [Y] [h]:[m01] [PN]")}</td>
-                                            <td>{$snapshot/tables-count/string()}</td>
-                                            <td>{$snapshot/records-count/string()}</td>
-                                            <td>{$snapshot/fields-count/string()}</td>
-                                            <td>{$snapshot/cells-count/string()}</td>
-                                            {
-                                                if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then 
-                                                    <td><a href="{$base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/delete"}">Delete</a></td>
-                                                else
-                                                    ()
-                                            }
-                                        </tr>
-                                }</tbody>
-                            </table>
-                        else if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then
-                            ()
-                        else
-                            <p>No snapshots. Please <a href="{$base-url}">log in</a> to take a new snapshot.</p>
-                }
-        else if (exists($base-id) and exists($snapshot-id) and empty($table-id)) then
-            element div {
-                element h2 { "Snapshot " || $snapshot-id },
-                element dl {
-                    attribute class { "row" },
-                    element dt { attribute class { "col-sm-2" }, "Snapshot Date" },
-                    element dd { attribute class { "col-sm-10" }, ($snapshot/created-dateTime cast as xs:dateTime) => format-dateTime("[MNn] [D], [Y] [h]:[m01] [PN]") },
-                    element dt { attribute class { "col-sm-2" }, "Number of Tables" },
-                    element dd { attribute class { "col-sm-10" }, count($tables) }
-                },
-                element h3 { "Tables" },
-                element ul {
-                    for $table in $tables
-                    let $table-id := $table?id
-                    let $table-name := $table?name
-                    order by $table-name
-                    return
-                        element li {
-                            element a {
-                                attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id },
-                                $table-name
-                            }
-                        }
-                }
-        }
-        else if (exists($base-id) and exists($snapshot-id) and exists($table-id) and (empty($record-id) and empty($field-id))) then
-            element div {
-                element h2 { $table?name },
-                element dl {
-                    attribute class { "row" },
-                    element dt { attribute class { "col-sm-2" }, "Table ID" },
-                    element dd { attribute class { "col-sm-10" }, $table-id },
-                    element dt { attribute class { "col-sm-2" }, "Number of Fields" },
-                    element dd { attribute class { "col-sm-10" }, count($columns) },
-                    element dt { attribute class { "col-sm-2" }, "Number of Records" },
-                    element dd { attribute class { "col-sm-10" }, count($table?records?*) }
-                },
-                element h3 { "Fields" },
-                element ul {
-                    for $column in $columns
-                    let $column-id := $column?id
-                    let $column-name := $column?name
-                    return
-                        element li {
-                            element a {
-                                attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $column?id },
-                                $column-name
-                            }
-                        }
-                },
-                element h3 { "Records" },
-                element ul {
-                    let $primary-column-name := $table?primaryColumnName
-                    let $adjusted-primary-column-name := 
-                        (:
-                        if ($primary-column-name eq "id") then
-                            "ID"
-                        else 
-                        :)
-                            $primary-column-name
-        (:            return element pre { serialize($table, map{"indent": true()}) }:)
-                    let $records := $table?records
-                    for $record in $records?*
-                    let $record-id := $record?id
-                    let $fields := $record?fields
-                    let $record-name := $fields?($adjusted-primary-column-name)
-                    order by $record-name collation "http://www.w3.org/2013/collation/UCA?numeric=yes"
-                    return
-                        element li {
-                            element a {
-                                attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/records/" || $record-id },
-                                $record-name
-                            }
-                        }
-                }
-            }
-        else if (exists($base-id) and exists($snapshot-id) and exists($table-id) and exists($field-id)) then
-            element div {
-                element h2 { $column?name },
-                element dl {
-                    attribute class { "row" },
-                    element dt { attribute class { "col-sm-2" }, "Field ID" },
-                    element dd { attribute class { "col-sm-10" }, $field-id },
-                    element dt { attribute class { "col-sm-2" }, "Field Type" },
-                    element dd { attribute class { "col-sm-10" }, $column?type },
-                    if (map:contains($column, "typeOptions")) then
-                        if (count($column?typeOptions?*) gt 0) then
-                            (
-                                element dt { attribute class { "col-sm-2" }, "typeOptions" },
-                                element dd {
-                                    attribute class { "col-sm-10" }, 
-                                    let $type-options := $column?typeOptions
-                                    let $choices := $type-options?choices?*
-                                    let $choice-order := $type-options?choiceOrder
-                                    let $foreign-table-id := $type-options?foreignTableId
-                                    let $foreign-table := $tables[?id eq $foreign-table-id]
-                                    let $symmetric-column-id := $type-options?symmetricColumnId
-                                    let $symmetric-column := $foreign-table?columns?*[?id eq $symmetric-column-id]
-                                    let $relation-column-id := $type-options?relationColumnId
-                                    let $relation-column := $table?columns?*[?id eq $relation-column-id]
-                                    let $foreign-table-rollup-column-id := $type-options?foreignTableRollupColumnId
-                                    let $foreign-table-for-rollup-column := $tables[?id eq $relation-column?foreignTableId]
-                                    let $foreign-table-rollup-column := $foreign-table-for-rollup-column?columns?*[?id eq $foreign-table-rollup-column-id]
-                                    return
-                                        if (exists($choices) and exists($choice-order)) then
-                                            element dl {
-                                                attribute class { "row" },
-                                                element dt { attribute class { "col-sm-2" }, "choices" },
-                                                element dd {
-                                                    attribute class { "col-sm-10" }, 
-                                                    let $ordered-choices := sort($choices, (), function($choice) { index-of($choice-order, $choice?id) })
-                                                    return
-                                                        element ol { 
-                                                            for $choice in $ordered-choices
-                                                            let $color := $choice?color
-                                                            return
-                                                                element li {
-                                                                    element span {
-                                                                        attribute class { "badge rounded-pill " || $bases:color-to-css-class?($color) },
-                                                                        $choice?name
-                                                                    } 
+                                    else
+                                        element dl {
+                                            attribute class { "row" },
+                                            for $option-key in ($options ! map:keys(.)[not(. = ("choices", "choice-order"))]) (: except ($choices, $choice-order) :)
+                                            let $option-value := $options($option-key)
+                                            let $dt-dd-pair :=
+                                                (
+                                                    element dt { attribute class { "col-sm-2" }, $option-key },
+                                                    element dd { attribute class { "col-sm-10" }, 
+                                                        switch ($option-key)
+                                                            case "foreignTableRollupColumnId" return
+                                                                element a {
+                                                                    attribute href {
+                                                                        $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-for-rollup-column?id
+                                                                    },
+                                                                    $foreign-table-rollup-column?name
                                                                 }
-                                                        }
-                                                }
-                                            }
-                                        else
-                                            element dl {
-                                                attribute class { "row" },
-                                                for $type-option-key in ($type-options ! map:keys(.)[not(. = ("choices", "choice-order"))]) (: except ($choices, $choice-order) :)
-                                                let $type-option-value := $type-options($type-option-key)
-                                                let $dt-dd-pair :=
-                                                    (
-                                                        element dt { attribute class { "col-sm-2" }, $type-option-key },
-                                                        element dd { attribute class { "col-sm-10" }, 
-                                                            switch ($type-option-key)
-                                                                case "foreignTableRollupColumnId" return
-                                                                    element a {
-                                                                        attribute href {
-                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-for-rollup-column?id
-                                                                        },
-                                                                        $foreign-table-rollup-column?name
-                                                                    }
-                                                                case "foreignTableId" return
-                                                                    element a {
-                                                                        attribute href {
-                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-id
-                                                                        },
-                                                                        $foreign-table?name
-                                                                    }
-                                                                case "symmetricColumnId" return
-                                                                    element a {
-                                                                        attribute href {
-                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-id || "/fields/" || $symmetric-column-id
-                                                                        },
-                                                                        $symmetric-column?name
-                                                                    }
-                                                                case "relationColumnId" return
-                                                                    element a {
-                                                                        attribute href {
-                                                                            $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $relation-column-id
-                                                                        },
-                                                                        $relation-column?name
-                                                                    }
-                                                                case "dependencies" return
-                                                                    (: TODO: confirm there's no need to display dependencies since they're always a duplicate of data in other entries :)
-                                                                    ()
-                                                                    (:
-                                                                    element ol {
-                                                                        for $referenced-column-id in $type-option-value?referencedColumnIdsForValue?*
-                                                                        let $referenced-column := $table?columns?*[?id eq $referenced-column-id]
-                                                                        return
-                                                                            element li { 
-                                                                                element a {
-                                                                                    attribute href {
-                                                                                        $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $referenced-column-id
-                                                                                    },
-                                                                                    $referenced-column?name || " (" || $referenced-column-id || ")"
-                                                                                }
+                                                            case "foreignTableId" return
+                                                                element a {
+                                                                    attribute href {
+                                                                        $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-id
+                                                                    },
+                                                                    $foreign-table?name
+                                                                }
+                                                            case "symmetricColumnId" return
+                                                                element a {
+                                                                    attribute href {
+                                                                        $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $foreign-table-id || "/fields/" || $symmetric-column-id
+                                                                    },
+                                                                    $symmetric-column?name
+                                                                }
+                                                            case "relationColumnId" return
+                                                                element a {
+                                                                    attribute href {
+                                                                        $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $relation-column-id
+                                                                    },
+                                                                    $relation-column?name
+                                                                }
+                                                            case "dependencies" return
+                                                                (: TODO: confirm there's no need to display dependencies since they're always a duplicate of data in other entries :)
+                                                                ()
+                                                                (:
+                                                                element ol {
+                                                                    for $referenced-column-id in $option-value?referencedColumnIdsForValue?*
+                                                                    let $referenced-column := $table?columns?*[?id eq $referenced-column-id]
+                                                                    return
+                                                                        element li { 
+                                                                            element a {
+                                                                                attribute href {
+                                                                                    $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $referenced-column-id
+                                                                                },
+                                                                                $referenced-column?name || " (" || $referenced-column-id || ")"
                                                                             }
-                                                                    }
-                                                                    :)
-                                                                (: TODO make field references into links - switch from replace to analyze-string :)
-                                                                case "formulaTextParsed" return
-                                                                    element code { element pre { 
-                                                                        (: rollups sometimes contain dependencies?referencedColumnIdsForValue that have nothing to do with formulaTextParsed :)
-                                                                        if (contains($type-options?formulaTextParsed, "column_value_") or contains($type-options?formulaTextParsed, "column_modified_time_")) then
-                                                                            fold-left(
-                                                                                $type-options?dependencies?referencedColumnIdsForValue?*,
-                                                                                $type-options?formulaTextParsed,
-                                                                                function ($text, $id) {
-                                                                                    replace(
-                                                                                        $text,
-                                                                                        "column_value_" || $id,
-                                                                                        $columns[?id eq $id]?name
+                                                                        }
+                                                                }
+                                                                :)
+                                                            (: TODO make field references into links - switch from replace to analyze-string :)
+                                                            case "formulaTextParsed" return
+                                                                element code { element pre { 
+                                                                    (: rollups sometimes contain dependencies?referencedColumnIdsForValue that have nothing to do with formulaTextParsed :)
+                                                                    if (contains($options?formulaTextParsed, "column_value_") or contains($options?formulaTextParsed, "column_modified_time_")) then
+                                                                        fold-left(
+                                                                            $options?dependencies?referencedColumnIdsForValue?*,
+                                                                            $options?formulaTextParsed,
+                                                                            function ($text, $id) {
+                                                                                replace(
+                                                                                    $text,
+                                                                                    "column_value_" || $id,
+                                                                                    $columns[?id eq $id]?name
+                                                                                )
+                                                                            }
+                                                                        )
+                                                                        => 
+                                                                            (
+                                                                                function($processed-text) { 
+                                                                                    fold-left(
+                                                                                        $options?dependencies?referencedColumnIdsForModification?*,
+                                                                                        $processed-text,
+                                                                                        function ($text, $id) {
+                                                                                            replace(
+                                                                                                $text,
+                                                                                                "column_modified_time_" || $id,
+                                                                                                $columns[?id eq $id]?name
+                                                                                            )
+                                                                                        }
                                                                                     )
                                                                                 }
-                                                                            )
-                                                                            => 
-                                                                                (
-                                                                                    function($processed-text) { 
-                                                                                        fold-left(
-                                                                                            $type-options?dependencies?referencedColumnIdsForModification?*,
-                                                                                            $processed-text,
-                                                                                            function ($text, $id) {
-                                                                                                replace(
-                                                                                                    $text,
-                                                                                                    "column_modified_time_" || $id,
-                                                                                                    $columns[?id eq $id]?name
-                                                                                                )
+                                                                            )()
+                                                                    else
+                                                                        $options?formulaTextParsed
+                                                                } }
+                                                            case "actionType" 
+                                                            case "color" 
+                                                            case "computationType"
+                                                            case "dateFormat" 
+                                                            case "displayType"
+                                                            case "durationFormat"
+                                                            case "format"
+                                                            case "icon" 
+                                                            case "isDateTime"
+                                                            case "max" 
+                                                            case "maxUsedAutoNumber"
+                                                            case "negative"
+                                                            case "precision"
+                                                            case "relationship"
+                                                            case "resultType" 
+                                                            case "shouldNotify"
+                                                            case "symbol"
+                                                            case "timeFormat"
+                                                            case "timeZone"
+                                                            case "unreversed"
+                                                            case "validatorName"
+                                                            return
+                                                                $option-value
+                                                            
+                                                            (: TODO computationParams below can reference columnIds, which should be parsed/linked:)
+                                                            case "label" 
+                                                            case "variant" 
+                                                            case "computationParams" return
+                                                                ``[
+                                                                element dl {
+                                                                    attribute class { "row" },
+                                                                    for $k in map:keys($option-value)
+                                                                    let $e := $option-value?($k)
+                                                                    let $dt-dd-pair :=
+                                                                        (
+                                                                            element dt { 
+                                                                                attribute class { "col-sm-2" },
+                                                                                $k
+                                                                            },
+                                                                            element dd { 
+                                                                                attribute class { "col-sm-10" },
+                                                                                if ($e instance of array(*)) then
+                                                                                    if ($k eq "columnIds" and count($e?*) ge 1) then
+                                                                                        let $field := $fields[?id = $e?*]
+                                                                                        let $field-schema := $fields-schema[?id = $e?*]
+                                                                                        return
+                                                                                            element a { 
+                                                                                                attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/" || $table-id || "/fields/" || $field?id }, 
+                                                                                                $field-schema?name 
                                                                                             }
-                                                                                        )
-                                                                                    }
-                                                                                )()
-                                                                        else
-                                                                            $type-options?formulaTextParsed
-                                                                    } }
-                                                                case "actionType" 
-                                                                case "color" 
-                                                                case "computationType"
-                                                                case "dateFormat" 
-                                                                case "displayType"
-                                                                case "durationFormat"
-                                                                case "format"
-                                                                case "icon" 
-                                                                case "isDateTime"
-                                                                case "max" 
-                                                                case "maxUsedAutoNumber"
-                                                                case "negative"
-                                                                case "precision"
-                                                                case "relationship"
-                                                                case "resultType" 
-                                                                case "shouldNotify"
-                                                                case "symbol"
-                                                                case "timeFormat"
-                                                                case "timeZone"
-                                                                case "unreversed"
-                                                                case "validatorName"
-                                                                return
-                                                                    $type-option-value
-                                                                
-                                                                (: TODO computationParams below can reference columnIds, which should be parsed/linked:)
-                                                                case "label" 
-                                                                case "variant" 
-                                                                case "computationParams" return
-                                                                    element dl {
-                                                                        attribute class { "row" },
-                                                                        for $k in map:keys($type-option-value)
-                                                                        let $e := $type-option-value?($k)
-                                                                        let $dt-dd-pair :=
-                                                                            (
-                                                                                element dt { 
-                                                                                    attribute class { "col-sm-2" },
-                                                                                    $k
-                                                                                },
-                                                                                element dd { 
-                                                                                    attribute class { "col-sm-10" },
-                                                                                    if ($e instance of array(*)) then
-                                                                                        if ($k eq "columnIds" and count($e?*) ge 1) then
-                                                                                            let $column := $columns[?id = $e?*]
-                                                                                            return
-                                                                                                element a { 
-                                                                                                    attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/" || $table-id || "/fields/" || $column?id }, 
-                                                                                                    $column?name 
-                                                                                                }
-                                                                                        else
-                                                                                            serialize($e, map { "method": "adaptive" })
                                                                                     else
-                                                                                        $e
-                                                                                }
-                                                                            )
-                                                                        where ($dt-dd-pair[2] => string-join() => string-length()) gt 0
-                                                                        return 
-                                                                            $dt-dd-pair
-                                                                    } 
-                                                                    
-                                                                default return
-                                                                    "UNKNOWN TYPE OPTION: " || $type-option-value => serialize(map { "method": "adaptive" } )
-                                                        }
-                                                    )
-                                                (: filter out empty entries, such as "dependencies": { "referencedColumnIdsForValue": [] } :)
-                                                where ($dt-dd-pair[2] => string-join() => string-length()) gt 0
-                                                return
-                                                    $dt-dd-pair
-                                            }
-                                }
-                            )
-                        else
-                            ()
+                                                                                        serialize($e, map { "method": "adaptive" })
+                                                                                else
+                                                                                    $e
+                                                                            }
+                                                                        )
+                                                                    where ($dt-dd-pair[2] => string-join() => string-length()) gt 0
+                                                                    return 
+                                                                        $dt-dd-pair
+                                                                }
+                                                                ]``
+                                                                
+                                                            default return
+                                                                "UNKNOWN TYPE OPTION: " || $option-value => serialize(map { "method": "adaptive" } )
+                                                    }
+                                                )
+                                            (: filter out empty entries, such as "dependencies": { "referencedColumnIdsForValue": [] } :)
+                                            where ($dt-dd-pair[2] => string-join() => string-length()) gt 0
+                                            return
+                                                $dt-dd-pair
+                                        }
+                            }
+                        )
                     else
                         ()
-                },
-                element pre {
-                    $column => serialize( map{ "method": "json", "indent": true() } )
-                },
-                element a {
-                    attribute href { "./" || $field-id || "?format=json" },
-                    "View raw JSON"
-                }
+                else
+                    ()
+            },
+            element pre {
+                $field-schema => serialize( map{ "method": "json", "indent": true() } )
+            },
+            element a {
+                attribute href { "./" || $field-id || "?format=json" },
+                "View raw JSON"
             }
-        else if (exists($base-id) and exists($snapshot-id) and exists($table-id) and exists($record-id)) then
-            element div { 
-                element h2 { $render-function($adjusted-primary-column-name) },
-                element dl { 
-                    attribute class { "row" },
-                    element dt { attribute class { "col-sm-2" }, "Record ID" },
-                    element dd { attribute class { "col-sm-10" }, $record-id }
-                },
-                element table {
-                    attribute class { "table table-bordered" },
-                    element thead { 
-                        element tr { 
-                            element th { "Field name" },
-                            element th { "Value" }
-                        }
-                    },
-                    element tbody {
-                        for $field-key in ($adjusted-primary-column-name, map:keys($fields)[. ne $adjusted-primary-column-name])
-                        let $column-id := $columns[?name eq $field-key]?id
-                        return
-                            element tr {
-                                element th { attribute class { "col-sm-2" }, 
-                                    element a {
-                                        attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $column-id[1] },
-                                        $field-key
-                                    }
-                                },
-                                element td { attribute class { "col-sm-10" }, 
-        (:                            $render-function($field-key):)
-                                    try { 
-                                        let $rendered-field := $render-function($field-key)
-                                        return
-                                            if ($rendered-field instance of map(*) or $rendered-field instance of array(*)) then
-                                                "MAP OR ARRAY!!! " || $rendered-field => serialize(map { "method": "adaptive" }) 
-                                            else
-                                                $rendered-field
-                                    } catch * { "error rendering: table-id: " || $table-id || " record-id: " || $record-id || " error: " || $err:description } 
-                                }
-                            }
-                    }
-                },
-                element pre {
-                    $record => serialize( map{ "method": "json", "indent": true() } )
-                },
-                element a {
-                    attribute href { "./" || $record-id || "?format=json" },
-                    "View raw JSON"
-                }
-            }
-        else
-            ()
+        }
     let $breadcrumb-entries :=
         (
             <a href="{$base-url}">Home</a>,
             <a href="{$base-url}/bases">Bases</a>,
-            if ($base-id) then 
-                <a href="{$base-url}/bases/{$base-id}">{$base-name}</a>
-            else 
-                (),
-            if ($snapshot-id) then 
-                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}">Snapshot {$snapshot-id}</a>
-            else 
-                (),
-            if ($table-id) then 
-                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}">Table “{$table-name}”</a>
-            else 
-                (),
-            if ($field-id) then 
-                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}/fields/{$field-id}">Field “{$column-name}”</a>
-            else 
-                (),
-            if ($record-id) then 
-                <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}/records/{$record-id}">Record “{$record-primary-field}”</a>
-            else 
-                ()
+            <a href="{$base-url}/bases/{$base-id}">{$base-name}</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}">Snapshot {$snapshot-id}</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}">Table “{$table-name}”</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}/fields/{$field-id}">Field “{$field-name}”</a>
+        )
+    let $breadcrumbs-count := count($breadcrumb-entries)
+    let $breadcrumbs := 
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {
+                    for $entry at $n in $breadcrumb-entries
+                    return
+                        if ($n eq $breadcrumbs-count) then
+                            <li class="breadcrumb-item active" aria-current="page">{$entry/string()}</li>
+                        else
+                            <li class="breadcrumb-item">{$entry}</li>
+                }
+            </ol>
+        </nav>
+    let $title := "Airlock"
+    let $content :=
+        element div { 
+            element h1 { $title },
+            $breadcrumbs,
+            $item
+        }
+    return
+        app:wrap($content, $title)
+};
+
+declare function bases:view-record($request as map(*)) {
+    let $base-url := $request?parameters?base-url
+    let $base-id := $request?parameters?base-id
+    let $snapshot-id := $request?parameters?snapshot-id
+    let $table-id := $request?parameters?table-id
+    let $record-id := $request?parameters?record-id
+    let $format := $request?parameters?format
+    let $bases := doc("/db/apps/airlock-data/bases/bases.xml")//base
+    let $base := $bases[id eq $base-id]
+    let $base-name := $base/name/string()
+    let $snapshots := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")//snapshot
+    let $snapshot := $snapshots[id eq $snapshot-id]
+    let $tables := 
+        xmldb:get-child-resources("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables") 
+        ! json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $snapshot-id || "/tables/" || .)
+    let $table := $tables[?id eq $table-id]
+    let $table-name := $table?name
+    let $fields-schema := $table?fields?*
+    let $primary-field-name := $fields-schema[?id eq $table?primaryFieldId]?name
+    let $records := $table?records?*
+    let $record := $records[?id eq $record-id]
+    let $render-function := function($field-key) { bases:render-field($base-url, $base-id, $snapshot-id, $tables, $table, $record, $field-key) }
+    let $item := 
+        element div { 
+            element h2 { $render-function($primary-field-name) },
+            element dl { 
+                attribute class { "row" },
+                element dt { attribute class { "col-sm-2" }, "Record ID" },
+                element dd { attribute class { "col-sm-10" }, $record-id }
+            },
+            element table {
+                attribute class { "table table-bordered" },
+                element thead { 
+                    element tr { 
+                        element th { "Field name" },
+                        element th { "Value" }
+                    }
+                },
+                element tbody {
+                    for $field-key in ($primary-field-name, $fields-schema?name[. ne $primary-field-name])
+                    let $field-id := $fields-schema[?name eq $field-key]?id
+                    return
+                        element tr {
+                            element th { attribute class { "col-sm-2" }, 
+                                element a {
+                                    attribute href { $base-url || "/bases/" || $base-id || "/snapshots/" || $snapshot-id  || "/" || $table-id || "/fields/" || $field-id[1] },
+                                    $field-key
+                                }
+                            },
+                            element td { attribute class { "col-sm-10" }, 
+    (:                            $render-function($field-key):)
+                                try { 
+                                    let $rendered-field := $render-function($field-key)
+                                    return
+                                        if ($rendered-field instance of map(*) or $rendered-field instance of array(*)) then
+                                            "MAP OR ARRAY!!! " || $rendered-field => serialize(map { "method": "adaptive" }) 
+                                        else
+                                            $rendered-field
+                                } catch * { "error rendering: table-id: " || $table-id || " record-id: " || $record-id || " error: " || $err:description } 
+                            }
+                        }
+                }
+            },
+            element pre {
+                $record => serialize( map{ "method": "json", "indent": true() } )
+            },
+            element a {
+                attribute href { "./" || $record-id || "?format=json" },
+                "View raw JSON"
+            }
+        }
+    let $breadcrumb-entries :=
+        (
+            <a href="{$base-url}">Home</a>,
+            <a href="{$base-url}/bases">Bases</a>,
+            <a href="{$base-url}/bases/{$base-id}">{$base-name}</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}">Snapshot {$snapshot-id}</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}">Table “{$table-name}”</a>,
+            <a href="{$base-url}/bases/{$base-id}/snapshots/{$snapshot-id}/{$table-id}/records/{$record-id}">Record “{$primary-field-name}”</a>
         )
     let $breadcrumbs-count := count($breadcrumb-entries)
     let $breadcrumbs := 
@@ -1289,10 +1412,10 @@ declare function bases:edit-base($request as map(*)) {
     let $base := doc("/db/apps/airlock-data/bases/bases.xml")//base[id eq $base-id]
     let $new-base-id := $request?parameters?new-base-id
     let $base-name := $request?parameters?base-name
-    let $api-key := $request?parameters?rest-api-key
+    let $access-token := $request?parameters?access-token
     let $permission-level := $request?parameters?permission-level
     let $notes := $request?parameters?notes
-    let $new-base := bases:base-element($new-base-id, $base-name, $api-key, $permission-level, $notes, $base/custom-reports/custom-report, $base/created-dateTime cast as xs:dateTime, current-dateTime())
+    let $new-base := bases:base-element($new-base-id, $base-name, $access-token, $permission-level, $notes, $base/custom-reports/custom-report, $base/created-dateTime cast as xs:dateTime, current-dateTime())
     let $update :=
         (
             update replace $base with $new-base,
@@ -1317,7 +1440,7 @@ declare function bases:edit-base-form($request as map(*)) {
     let $base-id := $request?parameters?base-id
     let $base := doc("/db/apps/airlock-data/bases/bases.xml")//base[id eq $base-id]
     let $base-name := $base/name
-    let $base-api-key := $base/api-key
+    let $base-access-token := $base/access-token
     let $base-permission-level := $base/permission-level
     let $base-notes := $base/notes
     let $custom-reports := $base/custom-reports/custom-report
@@ -1348,20 +1471,20 @@ declare function bases:edit-base-form($request as map(*)) {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="rest-api-key">REST API Key:</label>
+                    <label for="access-token">Access token:</label>
                     <div>
-                        <select class="form-select" aria-label="Select an API key" id="rest-api-key" name="rest-api-key">
-                            <option>Select an API key</option>
+                        <select class="form-select" aria-label="Select an access token" id="access-token" name="access-token">
+                            <option>Select an access token</option>
                             {
-                                for $key-set at $n in doc("/db/apps/airlock-data/keys/keys.xml")//key-set
+                                for $token-set at $n in doc("/db/apps/airlock-data/tokens/tokens.xml")//token-set
                                 return
-                                    <option value="{$key-set/rest-api-key}">{
-                                        if ($key-set/rest-api-key eq $base-api-key) then
+                                    <option value="{$token-set/access-token}">{
+                                        if ($token-set/access-token eq $base-access-token) then
                                             attribute selected { "selected" }
                                         else
                                             (),
-                                        $key-set/rest-api-key/string()
-                                    } ({$key-set/username/string()})</option>
+                                        $token-set/access-token/string()
+                                    } ({$token-set/username/string()})</option>
                             }
                         </select>
                     </div>
@@ -1510,11 +1633,11 @@ declare function bases:create-custom-report($request as map(*)) {
         app:wrap($content, $title)
 };
 
-declare function bases:base-element($base-id as xs:string, $base-name as xs:string, $api-key as xs:string, $permission-level as xs:string, $notes as xs:string, $custom-reports as element(custom-report)*, $created-dateTime as xs:dateTime, $last-modified-dateTime as xs:dateTime?) {
+declare function bases:base-element($base-id as xs:string, $base-name as xs:string, $access-token as xs:string, $permission-level as xs:string, $notes as xs:string, $custom-reports as element(custom-report)*, $created-dateTime as xs:dateTime, $last-modified-dateTime as xs:dateTime?) {
     element base {
         element id { $base-id },
         element name { $base-name },
-        element api-key { $api-key },
+        element access-token { $access-token },
         element permission-level { $permission-level },
         element notes { $notes },
         element custom-reports { $custom-reports },
@@ -1527,10 +1650,10 @@ declare function bases:create-base($request as map(*)) {
     let $base-url := $request?parameters?base-url
     let $base-id := $request?parameters?base-id
     let $base-name := $request?parameters?base-name
-    let $rest-api-key := $request?parameters?rest-api-key
+    let $access-token := $request?parameters?access-token
     let $permission-level := $request?parameters?permission-level
     let $notes := $request?parameters?notes
-    let $new-base := bases:base-element($base-id, $base-name, $rest-api-key, $permission-level, $notes, (), current-dateTime(), ())
+    let $new-base := bases:base-element($base-id, $base-name, $access-token, $permission-level, $notes, (), current-dateTime(), ())
     let $add := 
         (
             update insert $new-base into doc("/db/apps/airlock-data/bases/bases.xml")/bases,
@@ -1557,7 +1680,7 @@ declare function bases:update-base-metadata($request as map(*)) {
             "/db/apps/airlock-data/bases/" || $base-id
         else
             bases:mkcol("/db/apps/airlock-data/bases", $base-id)
-    let $store := bases:store("/db/apps/airlock-data/bases/" || $base-id, "base-metadata.json", $file)
+    let $store := bases:store("/db/apps/airlock-data/bases/" || $base-id, $config:base-schema-doc-name, $file)
     let $title := "Success"
     let $content :=
         <div class="alert alert-success" role="alert">
@@ -1607,22 +1730,6 @@ declare function bases:store($collection-uri as xs:string, $resource-name as xs:
         )
 };
 
-declare function bases:get-table-for-snapshot($api-key as xs:string, $base-id as xs:string, $base-metadata as map(*)) {
-    let $table := airtable:list-records($api-key, $base-id, $base-metadata?name, true(), (), (), (), (), (), (), ())
-    return
-        (: pass error messages back through :)
-        if ($table instance of element()) then
-            $table
-        else
-            map { 
-                "name": $base-metadata?name, 
-                "id": $base-metadata?id,
-                "primaryColumnName": $base-metadata?primaryColumnName,
-                "columns": $base-metadata?columns?*,
-                "records": array:join($table?records)
-            }
-};
-
 (: ensure columns entry contains an array :)
 declare function bases:fix-columns-entry($table as map(*)*) {
     map:merge((
@@ -1640,33 +1747,34 @@ declare function bases:create-snapshot($request as map(*)) {
     let $base-id := $request?parameters?base-id
     let $base := doc("/db/apps/airlock-data/bases/bases.xml")//base[id eq $base-id]
     let $base-name := $base/name/string()
-    let $api-key := $base/api-key/string()
+    let $access-token := $base/access-token/string()
     let $snapshots-doc := doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots.xml")/snapshots
     let $next-id := ($snapshots-doc/snapshot[last()]/id, "0")[1] cast as xs:integer + 1
     let $snapshot := element snapshot { element id { $next-id }, element created-dateTime { current-dateTime() } }
+    let $schema := airtable:get-base-schema($access-token, $base-id)
     let $prepare :=
         (
             bases:mkcol("/db/apps/airlock-data/bases/", $base-id || "/snapshots/" || $next-id || "/tables"),
-            xmldb:copy-resource(
-                "/db/apps/airlock-data/bases/" || $base-id,
-                "base-metadata.json",
-                "/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id,
-                "base-metadata.json",
-                true()
-            ),
+            bases:store("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id, $config:base-schema-doc-name, $schema => serialize(map{"method": "json", "indent": true()})),
             if (exists($snapshots-doc)) then
                 update insert $snapshot into $snapshots-doc
             else
                 bases:store("/db/apps/airlock-data/bases/" || $base-id, "snapshots.xml", element snapshots { $snapshot } )
         )
-    
-    (: https://github.com/Airtable/airtable.js/issues/12#issuecomment-349987627
-     :
-     : for exporting table metadata, start from https://airtable.com/appe0AfkruafOCgrw/api/docs :)
-    let $tables := json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id || "/base-metadata.json")?*
+    let $tables := json-doc("/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id || "/" || $config:base-schema-doc-name)?tables?*
     let $store :=
-        for $base-metadata in $tables
-        let $contents := bases:get-table-for-snapshot($api-key, $base-id, $base-metadata)
+        for $table-schema in $tables
+        let $table-name := $table-schema?name
+        let $table-id := $table-schema?id
+        let $records := airtable:list-records($access-token, $base-id, $table-id)?records
+        let $contents := 
+            map { 
+                "name": $table-name,
+                "id": $table-schema?id,
+                "primaryFieldId": $table-schema?primaryFieldId,
+                "fields": $table-schema?fields,
+                "records": array:join($records)
+            }
         (:
         if ($contents instance of element()) then
             app:wrap(
@@ -1681,7 +1789,7 @@ declare function bases:create-snapshot($request as map(*)) {
         return
             bases:store(
                 "/db/apps/airlock-data/bases/" || $base-id || "/snapshots/" || $next-id || "/tables",
-                ($base-metadata?name || ".json")
+                ($table-name || ".json")
                     (: space, nbsp, plus, colon, slash, bullet point :)
                     => replace("[ &#160;+:/&#x2022;]", "-")
                     (: parentheses :)
@@ -1779,11 +1887,11 @@ declare function bases:welcome($request as map(*)) {
                     <li class="breadcrumb-item active" aria-current="page">Home</li>
                 </ol>
             </nav>
-            <p>Welcome to Airlock. Guest users can browse existing bases. To add an API key, add bases, and take snapshots, <a href="{$base-url}/login">log in</a> as a user who is a member of the <code>{config:repo-permissions()?group}</code> group.</p>
+            <p>Welcome to Airlock. Guest users can browse existing bases. To add an access token, add bases, and take snapshots, <a href="{$base-url}/login">log in</a> as a user who is a member of the <code>{config:repo-permissions()?group}</code> group.</p>
             <ul>
                 {
                     if (sm:id()//sm:real/sm:groups/sm:group = config:repo-permissions()?group) then 
-                        <li><a href="{$base-url}/keys">API Keys</a></li>
+                        <li><a href="{$base-url}/tokens">Access tokens</a></li>
                     else
                         ()
                 }

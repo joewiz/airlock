@@ -64,7 +64,7 @@
         "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}/fields/{field-id}": {
             "get": {
                 "summary": "View a field",
-                "operationId": "bases:view",
+                "operationId": "bases:view-field",
                 "parameters": [
                 	{
                         "name": "base-url",
@@ -118,7 +118,7 @@
         "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}/records/{record-id}": {
             "get": {
                 "summary": "View a record",
-                "operationId": "bases:view",
+                "operationId": "bases:view-record",
                 "parameters": [
                 	{
                         "name": "base-url",
@@ -172,7 +172,7 @@
         "/bases/{base-id}/snapshots/{snapshot-id}/{table-id}": {
             "get": {
                 "summary": "View a table",
-                "operationId": "bases:view",
+                "operationId": "bases:view-table",
                 "parameters": [
                 	{
                         "name": "base-url",
@@ -214,7 +214,7 @@
         "/bases/{base-id}/snapshots/{snapshot-id}": {
             "get": {
                 "summary": "View a snapshot",
-                "operationId": "bases:view",
+                "operationId": "bases:view-snapshot",
                 "parameters": [
                 	{
                         "name": "base-url",
@@ -280,10 +280,10 @@
                 }
             }
         },
-        "/bases/{base-id}/base-metadata": {
+        "/bases/{base-id}/base-schema": {
             "post": {
                 "summary": "Post body as application/octet-stream",
-                "operationId": "bases:update-base-metadata",
+                "operationId": "bases:update-base-schema",
                 "x-constraints": {
                     "groups": [ "airlock" ]
                 },
@@ -426,7 +426,7 @@
                     {
                         "name": "report-label",
                         "in": "query",
-                        "description": "Airtable Username",
+                        "description": "Report label",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -436,7 +436,7 @@
                     {
                         "name": "report-description",
                         "in": "query",
-                        "description": "REST API key",
+                        "description": "Report description",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -446,7 +446,7 @@
                     {
                         "name": "report-location",
                         "in": "query",
-                        "description": "Metadata API key",
+                        "description": "Report location",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -597,9 +597,9 @@
                         }
                     },
                     {
-                        "name": "rest-api-key",
+                        "name": "access-token",
                         "in": "query",
-                        "description": "REST API key",
+                        "description": "Access token",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -642,7 +642,7 @@
         "/bases/{base-id}": {
             "get": {
                 "summary": "View a base",
-                "operationId": "bases:view",
+                "operationId": "bases:view-base",
                 "parameters": [
                 	{
                         "name": "base-url",
@@ -672,7 +672,7 @@
         "/bases": {
             "get": {
                 "summary": "List bases",
-                "operationId": "bases:view",
+                "operationId": "bases:view-bases",
                 "parameters": [
                 	{
                         "name": "base-url",
@@ -724,9 +724,9 @@
                         }
                     },
                     {
-                        "name": "rest-api-key",
+                        "name": "access-token",
                         "in": "query",
-                        "description": "REST API key",
+                        "description": "Access token",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -769,11 +769,11 @@
                 }
             }
         },
-        "/keys/{key-id}/delete": {
+        "/tokens/{token-id}/delete": {
             "get": {
-                "summary": "Delete API key",
-                "description": "Delete API key",
-                "operationId": "keys:delete-key-confirm",
+                "summary": "Delete access token",
+                "description": "Delete access token",
+                "operationId": "tokens:delete-token-confirm",
                 "x-constraints": {
                     "groups": [ "airlock" ]
                 },
@@ -785,7 +785,7 @@
                         "schema": { "type": "string" }
                     },
                     {
-                        "name": "key-id",
+                        "name": "token-id",
                         "in": "path",
                         "required": true,
                         "schema": { "type": "string" }
@@ -803,9 +803,9 @@
                 }
             },
             "post": {
-                "summary": "Delete API key",
-                "description": "Delete API key",
-                "operationId": "keys:delete-key",
+                "summary": "Delete access token",
+                "description": "Delete access token",
+                "operationId": "tokens:delete-token",
                 "x-constraints": {
                     "groups": [ "airlock" ]
                 },
@@ -817,7 +817,7 @@
                         "schema": { "type": "string" }
                     },
                     {
-                        "name": "key-id",
+                        "name": "token-id",
                         "in": "path",
                         "required": true,
                         "schema": { "type": "string" }
@@ -835,11 +835,11 @@
                 }
             }
         },
-        "/keys/{key-id}": {
+        "/tokens/{token-id}": {
             "get": {
-                "summary": "Edit API key",
-                "description": "Edit API key",
-                "operationId": "keys:edit-form",
+                "summary": "Edit access token",
+                "description": "Edit access token",
+                "operationId": "tokens:edit-form",
                 "x-constraints": {
                     "groups": [ "airlock" ]
                 },
@@ -851,7 +851,7 @@
                         "schema": { "type": "string" }
                     },
                     {
-                        "name": "key-id",
+                        "name": "token-id",
                         "in": "path",
                         "required": true,
                         "schema": { "type": "string" }
@@ -869,9 +869,9 @@
                 }
             },
             "post": {
-                "summary": "Edit API key",
-                "description": "Edit API key",
-                "operationId": "keys:update-key",
+                "summary": "Edit access token",
+                "description": "Edit access token",
+                "operationId": "tokens:update-token",
                 "x-constraints": {
                     "groups": [ "airlock" ]
                 },
@@ -883,7 +883,7 @@
                         "schema": { "type": "string" }
                     },
                     {
-                        "name": "key-id",
+                        "name": "token-id",
                         "in": "path",
                         "required": true,
                         "schema": { "type": "string" }
@@ -899,19 +899,9 @@
                         }
                     },
                     {
-                        "name": "rest-api-key",
+                        "name": "access-token",
                         "in": "query",
-                        "description": "REST API key",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "metadata-api-key",
-                        "in": "query",
-                        "description": "Metadata API key",
+                        "description": "Access token",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -921,7 +911,7 @@
                     {
                         "name": "notes",
                         "in": "query",
-                        "description": "API key notes",
+                        "description": "Access token notes",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -944,11 +934,11 @@
                 }
             }
         },
-        "/keys": {
+        "/tokens": {
             "get": {
-                "summary": "Manage API keys",
-                "description": "Manage API Keys",
-                "operationId": "keys:welcome",
+                "summary": "Manage access tokens",
+                "description": "Manage access tokens",
+                "operationId": "tokens:welcome",
                 "x-constraints": {
                     "groups": [ "airlock" ]
                 },
@@ -975,9 +965,9 @@
                 }
             },
             "post": {
-                "summary": "Add a new API key",
+                "summary": "Add a new access token",
                 "description": "Login the given user",
-                "operationId": "keys:create-key",
+                "operationId": "tokens:create-token",
                 "parameters": [
                     {
                         "name": "base-url",
@@ -996,19 +986,9 @@
                         }
                     },
                     {
-                        "name": "rest-api-key",
+                        "name": "access-token",
                         "in": "query",
-                        "description": "REST API key",
-                        "schema": {
-                            "type": "string",
-                            "example": "tei",
-                            "nullable": true
-                        }
-                    },
-                    {
-                        "name": "metadata-api-key",
-                        "in": "query",
-                        "description": "Metadata API key",
+                        "description": "Access token",
                         "schema": {
                             "type": "string",
                             "example": "tei",
@@ -1018,7 +998,7 @@
                     {
                         "name": "notes",
                         "in": "query",
-                        "description": "API key notes",
+                        "description": "Access token notes",
                         "schema": {
                             "type": "string",
                             "example": "tei",

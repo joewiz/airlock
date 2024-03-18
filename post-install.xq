@@ -59,22 +59,22 @@ xmldb:create-collection($config:app-data-parent-col, $config:app-data-col-name),
 let $col-names := 
     (
         $config:bases-col-name,
-        $config:keys-col-name
+        $config:tokens-col-name
     )
 for $col-name in $col-names
 return
     xmldb:create-collection($config:app-data-col, $col-name),
     
-(: Create the blank bases.xml and keys.xml documents:)
+(: Create the blank bases.xml and tokens.xml documents:)
 
 if (doc-available($config:bases-doc)) then
     ()
 else
     xmldb:store($config:bases-col, $config:bases-doc-name, <bases/>),
-if (doc-available($config:keys-doc)) then
+if (doc-available($config:tokens-doc)) then
     ()
 else
-    xmldb:store($config:keys-col, $config:keys-doc-name, <key-sets/>),
+    xmldb:store($config:tokens-col, $config:tokens-doc-name, <token-sets/>),
 
 (: Set user and group ownership on the data collection hierarchy :)
 
@@ -82,8 +82,8 @@ for $resource in (
     $config:app-data-col, 
     $config:bases-col,
     $config:bases-doc,
-    $config:keys-col,
-    $config:keys-doc
+    $config:tokens-col,
+    $config:tokens-doc
     )
 return
     local:set-data-collection-permissions($resource)

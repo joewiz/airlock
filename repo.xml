@@ -13,6 +13,12 @@
     <finish>post-install.xq</finish>
     <permissions user="airlock" password="airlock" group="airlock" mode="rwxrwxr-x"/>
     <changelog>
+        <change version="3.0.0">
+            <ul xmlns="http://www.w3.org/1999/xhtml">
+                <li>New: Fetch base schema via Airtable API</li>
+                <li>New: Adapt to Airtable's new token-based authentication and rate limiting rules</li>
+            </ul>
+        </change>
         <change version="2.1.0">
             <ul xmlns="http://www.w3.org/1999/xhtml">
                 <li>New: Rendering of all Airtable field types</li>

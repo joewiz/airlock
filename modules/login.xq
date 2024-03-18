@@ -6,7 +6,7 @@ declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
 import module namespace app="http://joewiz.org/ns/xquery/airlock/app" at "app.xqm";
 import module namespace bases="http://joewiz.org/ns/xquery/airlock/bases" at "bases.xqm";
 import module namespace config="http://joewiz.org/ns/xquery/airlock/config" at "config.xqm";
-import module namespace keys="http://joewiz.org/ns/xquery/airlock/keys" at "keys.xqm";
+import module namespace tokens="http://joewiz.org/ns/xquery/airlock/tokens" at "tokens.xqm";
 
 import module namespace errors="http://e-editiones.org/roaster/errors";
 import module namespace roaster="http://e-editiones.org/roaster";
