@@ -14,7 +14,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-xml": "^0.4.1",
-    "cypress": "^13.11.0",
+    "cypress": "^15.15.0",
     "fs-extra": "^9.1.0",
     "glob": "^13.0.0",
     "mocha": "^10.8.2",
